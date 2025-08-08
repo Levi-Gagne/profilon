@@ -1,0 +1,7 @@
+command: [
+  "streamlit",
+  "run",
+  "src/profilon/app.py",
+  "--server.headless", "true",
+  "--browser.gatherUsageStats", "false"
+]
