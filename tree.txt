@@ -1,0 +1,25 @@
+repo-root/
+├─ app.yaml
+├─ requirements.txt
+├─ src/
+│  └─ profilon/
+│     ├─ app.py                       # Streamlit app entry
+│     ├─ pages/
+│     │  ├─ 1_configure_&_run.py
+│     │  └─ 2_results.py
+│     ├─ utils/
+│     │  ├─ theme.py                  # global CLA theme injection
+│     │  └─ color.py                  # ANSI Color (for CLI/log parity)
+│     └─ jobs/
+│        ├─ __init__.py
+│        ├─ rulegen.py                # your RuleGenerator class (core logic)
+│        └─ run_rulegen.py            # entrypoint: reads CONFIG_PATH, runs, writes manifest
+├─ notebooks/
+│  └─ 00_run_rulegen_job.py           # tiny wrapper that calls run_rulegen.main()
+├─ conf/                              
+│  ├─ dev/
+│  │  └─ app.settings.yaml            # optional: defaults, paths
+│  └─ prod/
+│     └─ app.settings.yaml
+├─ scripts/                            # optional helpers (build, lint, etc.)
+└─ tests/                              # unit tests for jobs/utils
