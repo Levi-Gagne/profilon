@@ -1,7 +1,6 @@
 # src/profilon/pages/1_configure_&_run.py
 
 import os
-import io
 import time
 import uuid
 import yaml
@@ -13,7 +12,17 @@ from typing import List, Dict, Any, Optional
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo
 
+# App-wide CLA theme (CSS + variables)
+from profilon.utils.theme import inject_theme
+
+# Optional: ANSI Color for terminal/log parity (no effect on HTML)
+try:
+    from profilon.utils.color import Color as C  # noqa: F401
+except Exception:
+    C = None
+
 st.set_page_config(page_title="Configure & Run", layout="wide")
+inject_theme()  # global CSS once
 
 # ---------- Unity Catalog discovery via SDK ----------
 def safe_list_catalogs(wc: WorkspaceClient) -> List[str]:
@@ -83,123 +92,128 @@ def job_run_now_with_retry(wc: WorkspaceClient, job_id: int, params: Dict[str, s
 
 # ---------- Sidebar: job trigger ----------
 with st.sidebar:
-    st.caption("Workspace actions")
+    st.caption("<span class='cla-muted'>Workspace actions</span>", unsafe_allow_html=True)
     job_id = st.text_input("Databricks Job ID", placeholder="1234567890 (required to run)")
     run_button = st.button("Run Job (Save + Trigger)", use_container_width=True)
 
 wc = WorkspaceClient()  # default auth in Databricks Apps
 
-# ---------- Rule Generator options ----------
-st.title("Configure & Run")
+# ---------- Title ----------
+st.markdown(
+    "<div class='cla-section'><h1 style='margin:0'>Configure &amp; Run</h1>"
+    "<div class='cla-muted' style='margin-top:2px'>Profile targets with DQX-ready rule generation</div></div>",
+    unsafe_allow_html=True,
+)
+st.markdown("<div class='cla-hr'></div>", unsafe_allow_html=True)
 
+# ---------- Rule Generator options ----------
 c1, c2 = st.columns(2)
 with c1:
-    mode = st.selectbox("Mode", ["table", "schema", "catalog", "pipeline"], index=0)
+    mode = st.selectbox("Mode", ["pipeline", "catalog", "schema", "table"], index=0)
     output_format = st.selectbox("Output Format", ["yaml", "table"], index=0)
     created_by = st.text_input("Created By", value="LMG")
     run_config_name = st.text_input("Run Config Name", value="default")
     criticality = st.selectbox("Criticality", ["warn", "error"], index=0)
-    include_table_name = True  # fixed
-    st.write("YAML Key Order: **custom** (fixed)")
+    st.caption("<span class='cla-muted'>YAML Key Order: <b>custom</b></span>", unsafe_allow_html=True)
 
 with c2:
     if output_format == "yaml":
         output_location = st.text_input(
             "Output Location (YAML path)",
             value="/Volumes/<catalog>/<schema>/<volume>/dqx_checks",
-            help="Directory or full YAML file path. Will OVERWRITE."
+            help="Directory or full YAML file path. Will OVERWRITE.",
         )
     else:
         output_location = st.text_input(
             "Output Location (table FQN)",
             value="dq_prd.monitoring.dqx_checks_table",
-            help="Fully qualified: catalog.schema.table (rules appended)."
+            help="Fully qualified: catalog.schema.table (rules appended).",
         )
 
-st.markdown("<hr/>", unsafe_allow_html=True)
+st.markdown("<div class='cla-hr'></div>", unsafe_allow_html=True)
 
 # ---------- Target selection ----------
-st.subheader("Target Selection")
+st.markdown("<h2 class='cla-section' style='margin-top:0'>Target Selection</h2>", unsafe_allow_html=True)
 exclude_pattern = st.text_input("Exclude pattern (optional, e.g. '.tmp_*')", value="")
 
 name_param = ""
 columns: Optional[List[str]] = None
+catalogs = safe_list_catalogs(wc)
 
 if mode == "pipeline":
-    name_param = st.text_input("Pipelines (CSV)", value="my_pipeline_1,my_pipeline_2")
+    try:
+        pipeline_names = [p.name for p in wc.pipelines.list_pipelines()]
+    except Exception as e:
+        st.info(f"Pipelines unavailable via SDK ({e}); type manually.")
+        pipeline_names = []
+    pipeline = st.selectbox("Pipeline", pipeline_names) if pipeline_names else st.text_input("Pipeline", value="my_pipeline")
+    name_param = pipeline
 
 elif mode == "catalog":
-    catalogs = safe_list_catalogs(wc)
     catalog = st.selectbox("Catalog", catalogs) if catalogs else st.text_input("Catalog", value="dq_prd")
-    name_param = catalog
+    name_param = catalog  # profiles all tables in catalog
 
 elif mode == "schema":
-    catalogs = safe_list_catalogs(wc)
     catalog = st.selectbox("Catalog", catalogs) if catalogs else st.text_input("Catalog", value="dq_prd")
-    schemas = safe_list_schemas(wc, catalog) if catalogs else []
+    schemas = safe_list_schemas(wc, catalog) if catalog else []
     schema = st.selectbox("Schema", schemas) if schemas else st.text_input("Schema", value="monitoring")
-    name_param = f"{catalog}.{schema}"
+    name_param = f"{catalog}.{schema}"  # profiles all tables in schema
 
 else:  # table
-    catalogs = safe_list_catalogs(wc)
     catalog = st.selectbox("Catalog", catalogs) if catalogs else st.text_input("Catalog", value="dq_prd")
-    schemas = safe_list_schemas(wc, catalog) if catalogs else []
+    schemas = safe_list_schemas(wc, catalog) if catalog else []
     schema = st.selectbox("Schema", schemas) if schemas else st.text_input("Schema", value="monitoring")
-    tables = safe_list_tables(wc, catalog, schema) if schemas else []
-    table = st.selectbox("Table", tables) if tables else st.text_input("Table", value="job_run_audit")
-    name_param = f"{catalog}.{schema}.{table}"
 
-    all_cols = safe_list_columns(wc, catalog, schema, table) if (tables or table) else []
-    columns = st.multiselect("Columns (optional; default = all)", options=all_cols, default=[]) or None
+    tables = safe_list_tables(wc, catalog, schema) if schema else []
+    selected_tables = st.multiselect("Tables (select none to profile entire schema)", options=tables, default=[])
+    if selected_tables:
+        name_param = ",".join(f"{catalog}.{schema}.{t}" for t in selected_tables)
+    else:
+        name_param = f"{catalog}.{schema}"  # treat as “all tables in schema”
 
-st.markdown("<hr/>", unsafe_allow_html=True)
+    if len(selected_tables) == 1:
+        all_cols = safe_list_columns(wc, catalog, schema, selected_tables[0])
+        columns = st.multiselect("Columns (optional; default = all)", options=all_cols, default=[]) or None
+    else:
+        columns = None
+        st.caption("<span class='cla-muted'>Columns selectable only when exactly one table is chosen.</span>", unsafe_allow_html=True)
+
+st.markdown("<div class='cla-hr'></div>", unsafe_allow_html=True)
 
 # ---------- Profile Options ----------
-st.subheader("Profile Options")
+st.markdown("<h2 class='cla-section'>Profile Options</h2>", unsafe_allow_html=True)
 
 pc1, pc2, pc3 = st.columns(3)
 with pc1:
-    sample_fraction = st.slider("sample_fraction", min_value=0.0, max_value=1.0, value=0.3, step=0.05)
+    sample_fraction = st.slider("sample_fraction", 0.0, 1.0, 0.3, 0.05)
     sample_seed = st.number_input("sample_seed (0 = None)", value=0, step=1, min_value=0)
     limit = st.number_input("limit", min_value=0, value=1000, step=100)
 
 with pc2:
     remove_outliers = st.selectbox("remove_outliers", [False, True], index=0)
-    num_sigmas = st.slider("num_sigmas", min_value=1.0, max_value=5.0, value=3.0, step=0.5)
+    num_sigmas = st.slider("num_sigmas", 1.0, 5.0, 3.0, 0.5)
     trim_strings = st.selectbox("trim_strings", [True, False], index=0)
     round_values = st.selectbox("round (min/max rounding)", [True, False], index=0)
 
 with pc3:
-    max_null_ratio = st.slider("max_null_ratio", min_value=0.0, max_value=1.0, value=0.05, step=0.01)
-    max_empty_ratio = st.slider("max_empty_ratio", min_value=0.0, max_value=1.0, value=0.02, step=0.01)
-    distinct_ratio = st.slider("distinct_ratio", min_value=0.0, max_value=1.0, value=0.01, step=0.01)
+    max_null_ratio = st.slider("max_null_ratio", 0.0, 1.0, 0.05, 0.01)
+    max_empty_ratio = st.slider("max_empty_ratio", 0.0, 1.0, 0.02, 0.01)
+    distinct_ratio = st.slider("distinct_ratio", 0.0, 1.0, 0.01, 0.01)
     max_in_count = st.number_input("max_in_count", min_value=1, value=20, step=1)
 
 profile_options: Dict[str, Any] = {
     "sample_fraction": float(sample_fraction),
     "sample_seed": None if int(sample_seed) == 0 else int(sample_seed),
     "limit": int(limit),
-
     "remove_outliers": bool(remove_outliers),
-    "outlier_columns": [],  # add selection later if needed
+    "outlier_columns": [],
     "num_sigmas": float(num_sigmas),
-
     "max_null_ratio": float(max_null_ratio),
     "trim_strings": bool(trim_strings),
     "max_empty_ratio": float(max_empty_ratio),
-
     "distinct_ratio": float(distinct_ratio),
     "max_in_count": int(max_in_count),
-
     "round": bool(round_values),
-
-    # ---- preserved but commented in YAML output ----
-    # "include_histograms": False,
-    # "min_length": None,
-    # "max_length": None,
-    # "min_value": None,
-    # "max_value": None,
-    # "profile_types": None,
 }
 
 # ---------- Build config dict + fingerprint ----------
@@ -221,7 +235,7 @@ def build_config_dict() -> Dict[str, Any]:
         "_snapshot": {
             "created_at": created_at,
             "created_by": created_by or "unknown",
-            "app": "dqx-app",
+            "app": "profylon",
             "run_uuid": str(uuid.uuid4()),
         },
     }
@@ -232,11 +246,12 @@ def build_config_dict() -> Dict[str, Any]:
 cfg = build_config_dict()
 preview_yaml = render_yaml_with_optional_block(cfg)
 
-st.subheader("Save / Run")
+# ---------- Save / Run ----------
+st.markdown("<h2 class='cla-section'>Save / Run</h2>", unsafe_allow_html=True)
 config_path = st.text_input(
     "Config YAML path (Volume file)",
     value="/Volumes/<catalog>/<schema>/<volume>/dqx_rulegen_config.yaml",
-    help="Will be OVERWRITTEN on Save / Run."
+    help="Will be OVERWRITTEN on Save / Run.",
 )
 st.code(preview_yaml, language="yaml")
 
@@ -255,7 +270,6 @@ with colB:
             st.error("Enter a numeric Job ID in the sidebar.")
         else:
             try:
-                # one-two action: save then trigger
                 save_text_overwrite(config_path, preview_yaml)
                 run = job_run_now_with_retry(
                     wc, job_id=int(job_id), params={"CONFIG_PATH": config_path}, attempts=3
