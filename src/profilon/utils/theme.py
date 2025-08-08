@@ -2,8 +2,7 @@
 from __future__ import annotations
 import streamlit as st
 
-# One-to-one CLA brand palette → CSS variables.
-# Mirrors CLA section in utils/color.py exactly (names flattened to kebab-case).
+# CLA palette → CSS variables (1:1 with your guide, flattened names)
 _CLA_HEX = {
     # Primary
     "riptide": "#7DD2D3",
@@ -40,23 +39,39 @@ _CLA_HEX = {
     "navy-shade-dark":     "#171927",
 }
 
-# App-wide CSS (dark mode). Keep it restrained and brand-true.
 _BASE_CSS = f"""
 <style>
   :root {{
-    /* CLA palette */
+    /* === CLA Brand Tokens (hex) === */
     {"".join([f"--cla-{k}: {v};" for k, v in _CLA_HEX.items()])}
-    /* Derived tokens */
-    --cla-bg: #111315;                /* deep neutral for dark mode */
-    --cla-surface: #16191d;           /* card surface */
-    --cla-border: #1f2329;            /* hairlines */
-    --cla-text: var(--cla-cloud);     /* high-contrast body text on dark */
+
+    /* === Derived Theme Tokens (dark mode) === */
+    --cla-bg: #111315;
+    --cla-surface: #16191d;
+    --cla-border: #1f2329;
+    --cla-text: var(--cla-cloud);
     --cla-text-muted: var(--cla-smoke);
     --cla-primary: var(--cla-riptide);
     --cla-accent: var(--cla-navy);
     --cla-accent-strong: var(--cla-navy-shade-dark);
     --cla-cta: var(--cla-saffron);
     --cla-danger: var(--cla-scarlett);
+
+    /* === Alpha/utility tokens (single source for translucency & gradients) === */
+    --cla-alpha-0: 0;
+    --cla-alpha-2: 0.02;
+    --cla-alpha-4: 0.04;
+    --cla-alpha-8: 0.08;
+
+    /* Soft hero background using alpha (no inline rgba elsewhere) */
+    --cla-hero-bg: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, var(--cla-alpha-0)) 0%,
+      rgba(255, 255, 255, var(--cla-alpha-2)) 100%
+    );
+
+    /* Hairline divider */
+    --cla-hr: linear-gradient(90deg, transparent, var(--cla-border), transparent);
   }}
 
   html, body, [data-testid="stAppViewContainer"] {{
@@ -66,24 +81,18 @@ _BASE_CSS = f"""
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }}
 
-  /* Typography scale (dark-friendly, minimal) */
+  /* === Base Typography === */
   h1 {{ font-size: 1.6rem; line-height: 1.2; font-weight: 800; color: var(--cla-text); margin: 0.2rem 0 0.6rem; }}
   h2 {{ font-size: 1.25rem; line-height: 1.3; font-weight: 750; color: var(--cla-text); margin: 0.8rem 0 0.4rem; }}
   h3 {{ font-size: 1.05rem; line-height: 1.35; font-weight: 700; color: var(--cla-text); margin: 0.8rem 0 0.3rem; }}
   p, label, span, li {{ font-size: 0.95rem; }}
-
-  /* Section header: left bar uses primary (riptide), text anchored with navy accent */
-  .cla-section {{
-    border-left: 4px solid var(--cla-primary);
-    padding-left: 10px;
-    margin: 12px 0 6px 0;
-  }}
   .cla-muted {{ color: var(--cla-text-muted); font-weight: 600; }}
 
-  /* Subtle separator */
-  .cla-hr {{ height: 1px; background: linear-gradient(90deg, transparent, var(--cla-border), transparent); border: none; margin: 16px 0; }}
+  /* Section accent */
+  .cla-section {{ border-left: 4px solid var(--cla-primary); padding-left: 10px; margin: 12px 0 6px 0; }}
+  .cla-hr {{ height: 1px; background: var(--cla-hr); border: none; margin: 16px 0; }}
 
-  /* Cards */
+  /* Cards (columns look) */
   div[data-testid="stVerticalBlock"] > div[data-testid="stHorizontalBlock"] > div {{
     background-color: var(--cla-surface);
     border: 1px solid var(--cla-border);
@@ -93,8 +102,7 @@ _BASE_CSS = f"""
 
   /* Inputs */
   label, .stSelectbox label, .stTextInput label, .stNumberInput label, .stMultiSelect label {{
-    font-weight: 700;
-    color: var(--cla-text);
+    font-weight: 700; color: var(--cla-text);
   }}
   .stSelectbox div[data-baseweb="select"]>div,
   .stMultiSelect div[data-baseweb="select"]>div,
@@ -123,16 +131,50 @@ _BASE_CSS = f"""
   /* Code / YAML */
   pre, code {{ color: var(--cla-cloud); }}
 
-  /* Links w/ riptide emphasis + navy hover */
+  /* Links */
   a, a:visited {{ color: var(--cla-primary); text-decoration: none; }}
   a:hover {{ color: var(--cla-riptide-shade-light); text-decoration: underline; }}
+
+  /* === Reusable component classes === */
+  .pf-hero {{
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    width: 100%;
+    padding: clamp(12px, 2.5vw, 28px) 0;
+    margin: 4px 0 10px;
+    background: var(--cla-hero-bg);
+  }}
+  .pf-hero__inner {{ width: min(1200px, 96%); margin: 0 auto; padding: 0 clamp(8px, 2vw, 24px); }}
+  .pf-hero__title {{
+    margin: 0; font-weight: 900; letter-spacing: 0.3px;
+    font-size: clamp(1.75rem, 1.1rem + 2vw, 2.625rem); color: var(--cla-cloud);
+  }}
+  .pf-hero__motto {{
+    margin: 8px 0 0; font-weight: 800;
+    font-size: clamp(0.875rem, 0.7rem + 0.5vw, 1.125rem); line-height: 1.25;
+    color: var(--cla-riptide-shade-light); word-spacing: 1px;
+  }}
+  .pf-hero__motto .accent {{ color: var(--cla-riptide); }}
+
+  .pf-hr {{ height: 1px; border: 0; margin: clamp(10px, 2vw, 18px) 0; background: var(--cla-hr); }}
+
+  .pf-grid {{
+    display: grid; grid-template-columns: repeat(12, 1fr);
+    gap: clamp(10px, 1.8vw, 18px); width: min(1200px, 96%); margin: 0 auto;
+  }}
+  .pf-card {{
+    grid-column: span 6; background: var(--cla-surface);
+    border: 1px solid var(--cla-border); border-radius: 10px;
+    padding: clamp(12px, 1.6vw, 18px);
+  }}
+  .pf-card h3 {{ margin: 0 0 8px 0; font-size: clamp(1.05rem, 0.96rem + 0.4vw, 1.25rem); }}
+  @media (max-width: 860px) {{
+    .pf-card {{ grid-column: span 12; }}
+  }}
 </style>
 """
 
 def inject_theme() -> None:
-    """
-    Injects the CLA theme once per session. Safe to call at the top of every page.
-    """
+    """Inject CLA theme (tokens + reusable components). Safe to call from any page."""
     key = "_cla_theme_injected"
     if not st.session_state.get(key):
         st.markdown(_BASE_CSS, unsafe_allow_html=True)
