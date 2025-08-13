@@ -3,7 +3,7 @@
 import streamlit as st
 from utils.theme import inject_theme
 
-st.set_page_config(page_title="Profylon", layout="wide")
+st.set_page_config(page_title="Profilon", layout="wide")
 inject_theme()
 
 # --- Header (centered) ---

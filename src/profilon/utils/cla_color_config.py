@@ -1,4 +1,4 @@
-# src/profilon/config/cla_color_config.py
+# src/profilon/utils/cla_color_config.py
 
 class CLAColor:
     """
