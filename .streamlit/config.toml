@@ -1,2 +1,119 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Streamlit built-ins (limited but still good to set)
+# ──────────────────────────────────────────────────────────────────────────────
 [theme]
-base = "dark"  # let CSS control actual colors/spacing
+base = "dark"
+primaryColor = "#7DD2D3"              # riptide
+backgroundColor = "#171927"           # navy_shade_dark
+secondaryBackgroundColor = "#2E334E"  # navy
+textColor = "#F7F7F6"                 # cloud
+font = "sans serif"                   # fine; custom families come via CSS below
+
+# Quality-of-life options you might like
+[client]
+showErrorDetails = true
+toolbarMode = "minimal"
+
+[server]
+headless = true
+enableStaticServing = true
+
+# ──────────────────────────────────────────────────────────────────────────────
+# PROFFILON BRAND SYSTEM — the app will read this and build CSS variables
+# ──────────────────────────────────────────────────────────────────────────────
+[profilon]
+active_preset = "dark"   # if you add a "light" preset later, switch here
+
+# All tokens flattened (easy to turn into CSS variables)
+[profilon.tokens]
+# Core (Primary)
+riptide = "#7DD2D3"
+navy    = "#2E334E"
+
+# Secondary
+celadon = "#E2E868"
+saffron = "#FBC55A"
+scarlett = "#EE5340"
+
+# Neutrals
+charcoal = "#25282A"
+smoke    = "#ABAEAB"
+cloud    = "#F7F7F6"
+white    = "#FFFFFF"
+black    = "#000000"
+
+# Approved Tints / Shades
+riptide_tint_light  = "#C2EAEA"
+riptide_tint_medium = "#A4DFE0"
+riptide_tint_dark   = "#95D9DB"
+riptide_shade_light  = "#49BFC1"
+riptide_shade_medium = "#39A5A7"
+riptide_shade_dark   = "#24787A"
+
+navy_shade_light  = "#262A40"
+navy_shade_medium = "#1E2133"
+navy_shade_dark   = "#171927"
+
+celadon_tint_light  = "#F5F7D1"
+celadon_tint_medium = "#EEF2B2"
+celadon_tint_dark   = "#E7EC93"
+
+saffron_tint_light  = "#FEEECE"
+saffron_tint_medium = "#FDDC9C"
+saffron_tint_dark   = "#FCD17B"
+
+scarlett_tint_light  = "#FBCDC4"
+scarlett_tint_medium = "#F69B89"
+scarlett_tint_dark   = "#F37962"
+
+# Typography families (used by CSS injector; Streamlit's [theme.font] is limited)
+[profilon.typography]
+headings_family = "Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+body_family     = "Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+mono_family     = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
+
+# Type scale (optional; tweak to taste)
+h1_size = "2.0rem"
+h2_size = "1.5rem"
+h3_size = "1.25rem"
+h4_size = "1.05rem"
+body_size = "0.95rem"
+code_size = "0.90rem"
+line_height = "1.4"
+
+# Weights / tracking
+h_weight = 800
+body_weight = 400
+letter_spacing = "0.01em"
+
+# Map header levels → brand tokens (by token key from profilon.tokens)
+[profilon.headers]
+h1 = "cloud"
+h2 = "riptide_shade_light"
+h3 = "saffron"
+h4 = "celadon"
+
+# Component: “hero” box used on landing, etc.
+[profilon.components.hero]
+use = true
+border_color = "riptide_shade_light"
+bg_color     = "navy_shade_dark"
+radius_px    = 14
+border_width_px = 1
+padding = "14px 16px"
+shadow = "0 1px 10px rgba(0,0,0,.28)"
+
+# Generic “box” defaults you can reuse for cards/sections
+[profilon.components.box]
+radius_px = 12
+border_width_px = 1
+border_color = "navy_shade_light"
+bg_color = "secondaryBackgroundColor"    # may also reference Streamlit theme keys
+shadow = "0 1px 6px rgba(0,0,0,.18)"
+padding = "12px 14px"
+
+# Layout knobs
+[profilon.layout]
+content_max_width = "1400px"
+gutter = "14px"
+hr_opacity = 0.15   # 0..1
