@@ -1,4 +1,4 @@
-# src/profilon/pages/1_configure_&_run.py
+# src/profilon/pages/01_configure_and_run.py
 
 import os
 import time
@@ -9,24 +9,24 @@ import hashlib
 import streamlit as st
 from typing import List, Dict, Any, Optional
 
-from pyspark.sql import SparkSession
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo
 
 # App-wide CLA theme (CSS + variables)
 from utils.theme import inject_theme
 
-# Optional: ANSI Color for terminal/log parity (no effect on HTML)
-try:
-    from utils.color import Color as C  # noqa: F401
-except Exception:
-    C = None
-
-st.set_page_config(page_title="Configure & Run", layout="wide")
+st.set_page_config(page_title="profilon — Configure & Run", layout="wide")
 inject_theme()  # global CSS once
 
-wc = WorkspaceClient()  # default auth in Databricks Apps
-spark = SparkSession.getActiveSession() or SparkSession.builder.getOrCreate()
+# ---------- Databricks SDK client (no Spark) ----------
+try:
+    wc = WorkspaceClient()  # default auth in Databricks Apps
+except Exception as e:
+    wc = None
+    st.error(
+        "Databricks WorkspaceClient could not be initialized. "
+        f"Check credentials / environment. Details: {e}"
+    )
 
 # ---------- Header with right-aligned CLA logo ----------
 left, right = st.columns([6, 1])
@@ -34,76 +34,72 @@ with left:
     st.markdown(
         """
         <div style="display:flex;align-items:flex-end;gap:10px;">
-          <div>
-            <h1 class="pf-hero__title" style="margin:0">Configure &amp; Run</h1>
-            <div class="cla-muted" style="margin-top:2px">Profile targets with DQX-ready rule generation</div>
+          <div class="pf-hero__title-box"
+               style="
+                 border: 1px solid var(--cla-riptide-shade-medium);
+                 border-radius: 12px;
+                 padding: 10px 14px;
+                 background: var(--cla-navy-shade-dark);
+                 box-shadow: 0 1px 8px rgba(0,0,0,.25);
+               ">
+            <h1 class="pf-hero__title" style="margin:0;color:var(--cla-cloud)">Configure &amp; Run</h1>
+            <div class="cla-muted" style="margin-top:2px">
+              Profile targets with DQX-ready rule generation
+            </div>
           </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 with right:
-    st.image("assets/cla_logo_white.png", output_format="PNG", use_column_width=False, width=140)
+    # Use your exact path + casing for the asset
+    st.image("Assets/cla_logo_white.png", output_format="PNG", use_column_width=False, width=140)
 
 st.markdown("<div class='cla-hr'></div>", unsafe_allow_html=True)
 
-# ---------- Unity Catalog discovery via Spark (fallback to SDK) ----------
-def safe_list_catalogs(_wc: WorkspaceClient) -> List[str]:
-    # Try Spark first (SHOW CATALOGS often returns everything the active principal can see)
-    try:
-        rows = spark.sql("SHOW CATALOGS").collect()
-        cats = []
-        for r in rows:
-            # Databricks row schema varies: r.catalog or r[0]
-            cats.append(getattr(r, "catalog", None) or r[0])
-        return sorted(set([c for c in cats if c]))
-    except Exception:
-        pass
-    # Fallback: SDK
+# ---------- Unity Catalog discovery via Databricks SDK only ----------
+@st.cache_data(show_spinner=False, ttl=60)
+def sdk_list_catalogs(_wc: WorkspaceClient) -> List[str]:
+    if not _wc:
+        return []
     try:
         return sorted({c.name for c in _wc.catalogs.list() if isinstance(c, CatalogInfo)})
     except Exception as e:
         st.info(f"Catalog list unavailable ({e}); type values manually.")
         return []
 
-def safe_list_schemas(_wc: WorkspaceClient, catalog: str) -> List[str]:
-    # Spark fallback is usually more permissive than SDK here as well
-    try:
-        rows = spark.sql(f"SHOW SCHEMAS IN `{catalog}`").collect()
-        return sorted({(getattr(r, "namespace", None) or getattr(r, "databaseName", None) or r[0]) for r in rows})
-    except Exception:
-        pass
+@st.cache_data(show_spinner=False, ttl=60)
+def sdk_list_schemas(_wc: WorkspaceClient, catalog: str) -> List[str]:
+    if not (_wc and catalog):
+        return []
     try:
         return sorted({s.name for s in _wc.schemas.list(catalog_name=catalog) if isinstance(s, SchemaInfo)})
     except Exception as e:
         st.info(f"Schema list unavailable ({e}); type values manually.")
         return []
 
-def safe_list_tables(_wc: WorkspaceClient, catalog: str, schema: str) -> List[str]:
-    # Spark first
-    try:
-        rows = spark.sql(f"SHOW TABLES IN `{catalog}`.`{schema}`").collect()
-        return sorted({getattr(r, "tableName", None) or r[1] for r in rows})
-    except Exception:
-        pass
+@st.cache_data(show_spinner=False, ttl=60)
+def sdk_list_tables(_wc: WorkspaceClient, catalog: str, schema: str) -> List[str]:
+    if not (_wc and catalog and schema):
+        return []
     try:
         return sorted({t.name for t in _wc.tables.list(catalog_name=catalog, schema_name=schema) if isinstance(t, TableInfo)})
     except Exception as e:
         st.info(f"Table list unavailable ({e}); type values manually.")
         return []
 
-def safe_list_columns(_wc: WorkspaceClient, catalog: str, schema: str, table: str) -> List[str]:
+@st.cache_data(show_spinner=False, ttl=60)
+def sdk_list_columns(_wc: WorkspaceClient, catalog: str, schema: str, table: str) -> List[str]:
+    if not (_wc and catalog and schema and table):
+        return []
     try:
-        df = spark.table(f"`{catalog}`.`{schema}`.`{table}`")
-        return df.columns
-    except Exception:
-        try:
-            t = _wc.tables.get(full_name=f"{catalog}.{schema}.{table}")
-            cols = getattr(t, "columns", None) or []
-            return [c.name for c in cols]
-        except Exception as e:
-            st.info(f"Column list unavailable ({e}); you can continue without column selection.")
-            return []
+        t = _wc.tables.get(full_name=f"{catalog}.{schema}.{table}")
+        cols = getattr(t, "columns", None) or []
+        # Each column has .name; fallback to dict format if needed
+        return [getattr(c, "name", None) or (c.get("name") if isinstance(c, dict) else None) for c in cols if c]
+    except Exception as e:
+        st.info(f"Column list unavailable ({e}); you can continue without column selection.")
+        return []
 
 # ---------- small utils ----------
 def validate_volume_path(p: str) -> None:
@@ -120,6 +116,8 @@ def save_text_overwrite(path: str, text: str) -> None:
         dbutils.fs.put("dbfs:" + path, text, True)
         return
     if path.startswith("/"):
+        if not wc:
+            raise RuntimeError("WorkspaceClient is not available to upload workspace files.")
         wc.files.upload(file_path=path, contents=text.encode("utf-8"), overwrite=True)
         return
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
@@ -155,6 +153,13 @@ with st.sidebar:
     st.caption("<span class='cla-muted'>Workspace actions</span>", unsafe_allow_html=True)
     job_id = st.text_input("Databricks Job ID", placeholder="1234567890 (required to run)")
     run_button = st.button("Run Job (Save + Trigger)", use_container_width=True)
+    st.divider()
+    if st.button("🔄 Refresh UC listings", use_container_width=True):
+        sdk_list_catalogs.clear()
+        sdk_list_schemas.clear()
+        sdk_list_tables.clear()
+        sdk_list_columns.clear()
+        st.experimental_rerun()
 
 # ---------- Title divider ----------
 st.markdown("<div class='cla-hr'></div>", unsafe_allow_html=True)
@@ -197,11 +202,11 @@ exclude_pattern = st.text_input("Exclude pattern (optional, e.g. '.tmp_*')", val
 name_param = ""
 columns: Optional[List[str]] = None
 
-catalogs = safe_list_catalogs(wc)
+catalogs = sdk_list_catalogs(wc)
 
 if mode == "pipeline":
     try:
-        pipeline_names = [p.name for p in wc.pipelines.list_pipelines()]
+        pipeline_names = [p.name for p in wc.pipelines.list_pipelines()] if wc else []
     except Exception as e:
         st.info(f"Pipelines unavailable via SDK ({e}); type manually.")
         pipeline_names = []
@@ -214,16 +219,16 @@ elif mode == "catalog":
 
 elif mode == "schema":
     catalog = st.selectbox("Catalog", catalogs) if catalogs else st.text_input("Catalog", value="dq_prd")
-    schemas = safe_list_schemas(wc, catalog) if catalog else []
+    schemas = sdk_list_schemas(wc, catalog) if catalog else []
     schema = st.selectbox("Schema", schemas) if schemas else st.text_input("Schema", value="monitoring")
     name_param = f"{catalog}.{schema}"  # profiles all tables in schema
 
 else:  # table
     catalog = st.selectbox("Catalog", catalogs) if catalogs else st.text_input("Catalog", value="dq_prd")
-    schemas = safe_list_schemas(wc, catalog) if catalog else []
+    schemas = sdk_list_schemas(wc, catalog) if catalog else []
     schema = st.selectbox("Schema", schemas) if schemas else st.text_input("Schema", value="monitoring")
 
-    tables = safe_list_tables(wc, catalog, schema) if schema else []
+    tables = sdk_list_tables(wc, catalog, schema) if schema else []
     selected_tables = st.multiselect("Tables (select none to profile entire schema)", options=tables, default=[])
     if selected_tables:
         name_param = ",".join(f"{catalog}.{schema}.{t}" for t in selected_tables)
@@ -231,7 +236,7 @@ else:  # table
         name_param = f"{catalog}.{schema}"  # treat as “all tables in schema”
 
     if len(selected_tables) == 1:
-        all_cols = safe_list_columns(wc, catalog, schema, selected_tables[0])
+        all_cols = sdk_list_columns(wc, catalog, schema, selected_tables[0])
         columns = st.multiselect("Columns (optional; default = all)", options=all_cols, default=[]) or None
     else:
         columns = None
@@ -315,7 +320,7 @@ config_path = st.text_input(
 )
 st.code(preview_yaml, language="yaml")
 
-colA, colB = st.columns([1,1])
+colA, colB = st.columns([1, 1])
 with colA:
     if st.button("💾 Save YAML", use_container_width=True):
         try:
@@ -325,15 +330,20 @@ with colA:
             st.error(f"Failed to save config: {e}")
 
 with colB:
-    if run_button:
-        if not job_id.strip().isdigit():
-            st.error("Enter a numeric Job ID in the sidebar.")
-        else:
-            try:
-                save_text_overwrite(config_path, preview_yaml)
-                run = job_run_now_with_retry(
-                    wc, job_id=int(job_id), params={"CONFIG_PATH": config_path}, attempts=3
-                )
-                st.success(f"Saved and triggered job_id={job_id}. Run ID: {getattr(run, 'run_id', 'N/A')}")
-            except Exception as e:
-                st.error(f"Failed to trigger job: {e}")
+    if st.button("🚀 Save + Trigger Job", use_container_width=True) or False:
+        # keep previous sidebar button behavior as well
+        pass
+
+# Keep sidebar button behavior (so both trigger options work)
+if "run_button" in locals() and run_button:
+    if not job_id.strip().isdigit():
+        st.error("Enter a numeric Job ID in the sidebar.")
+    else:
+        try:
+            save_text_overwrite(config_path, preview_yaml)
+            run = job_run_now_with_retry(
+                wc, job_id=int(job_id), params={"CONFIG_PATH": config_path}, attempts=3
+            )
+            st.success(f"Saved and triggered job_id={job_id}. Run ID: {getattr(run, 'run_id', 'N/A')}")
+        except Exception as e:
+            st.error(f"Failed to trigger job: {e}")
