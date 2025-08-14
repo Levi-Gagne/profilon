@@ -17,7 +17,7 @@ from profilon.utils.theme import inject_theme
 
 # Optional: ANSI Color for terminal/log parity (no effect on HTML)
 try:
-    from profilon.utils.color import Color as C  # noqa: F401
+    from profilon.utils.cla_color_config import CLAColor as C  # noqa: F401
 except Exception:
     C = None
 
@@ -235,7 +235,7 @@ def build_config_dict() -> Dict[str, Any]:
         "_snapshot": {
             "created_at": created_at,
             "created_by": created_by or "unknown",
-            "app": "profylon",
+            "app": "profilon",  # fixed typo
             "run_uuid": str(uuid.uuid4()),
         },
     }
