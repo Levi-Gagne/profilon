@@ -1,7 +1,7 @@
 # src/profilon/app.py
 
 import streamlit as st
-from utils.theme import inject_theme
+from profilon.utils.theme import inject_theme  # absolute import
 
 st.set_page_config(page_title="Profilon", layout="wide")
 inject_theme()
@@ -39,7 +39,7 @@ with c2:
         """
         <h3 class="cla-section">Notes</h3>
         <ul>
-          <li>Theme is global via <code>profillon.utils.theme.inject_theme()</code></li>
+          <li>Theme is global via <code>profilon.utils.theme.inject_theme()</code></li>
           <li>Colors map 1:1 to CLA tokens (tints/shades included)</li>
         </ul>
         """,
