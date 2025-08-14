@@ -4,7 +4,7 @@ import base64
 from pathlib import Path
 
 import streamlit as st
-from profilon.utils.theme import inject_theme  # absolute import
+from utils.theme import inject_theme  # absolute import
 
 
 # -------------------------
