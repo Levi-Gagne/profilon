@@ -53,7 +53,7 @@ with left:
     )
 with right:
     # Use your exact path + casing for the asset
-    st.image("Assets/cla_logo_white.png", output_format="PNG", use_column_width=False, width=140)
+    st.image("assets/cla_logo_white.png", output_format="PNG", use_column_width=False, width=140)
 
 st.markdown("<div class='cla-hr'></div>", unsafe_allow_html=True)
 
