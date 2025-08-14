@@ -12,8 +12,8 @@ from typing import List, Dict, Any, Optional
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo
 
-# App-wide CLA theme (CSS + variables)
-from utils.theme import inject_theme
+# App-wide CLA theme (TOML → CSS variables)
+from utils.theme import inject_theme, hero
 
 st.set_page_config(page_title="profilon — Configure & Run", layout="wide")
 inject_theme()  # global CSS once
@@ -31,28 +31,9 @@ except Exception as e:
 # ---------- Header with right-aligned CLA logo ----------
 left, right = st.columns([6, 1])
 with left:
-    st.markdown(
-        """
-        <div style="display:flex;align-items:flex-end;gap:10px;">
-          <div class="pf-hero__title-box"
-               style="
-                 border: 1px solid var(--cla-riptide-shade-medium);
-                 border-radius: 12px;
-                 padding: 10px 14px;
-                 background: var(--cla-navy-shade-dark);
-                 box-shadow: 0 1px 8px rgba(0,0,0,.25);
-               ">
-            <h1 class="pf-hero__title" style="margin:0;color:var(--cla-cloud)">Configure &amp; Run</h1>
-            <div class="cla-muted" style="margin-top:2px">
-              Profile targets with DQX-ready rule generation
-            </div>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    hero("Configure &amp; Run", "Profile targets with DQX-ready rule generation")
 with right:
-    # Use your exact path + casing for the asset
+    # exact path/casing matters
     st.image("assets/cla_logo_white.png", output_format="PNG", use_column_width=False, width=140)
 
 st.markdown("<div class='cla-hr'></div>", unsafe_allow_html=True)
