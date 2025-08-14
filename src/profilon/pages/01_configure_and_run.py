@@ -33,7 +33,6 @@ def _load_logo_b64() -> str | None:
     candidates = [
         here.parent.parent / "assets" / "cla_logo_white.png",  # src/profilon/assets/...
         here.parents[2] / "assets" / "cla_logo_white.png",     # repo-root/assets/...
-        here.parents[2] / "Assets" / "cla_logo_white.png",     # optional legacy casing
     ]
     for p in candidates:
         try:
