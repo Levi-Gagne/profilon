@@ -1,22 +1,21 @@
-# src/profilon/pages/01_configure_and_run.py
-
 import os
 import time
 import uuid
 import yaml
 import json
 import hashlib
+import base64
+from pathlib import Path
 import streamlit as st
 from typing import List, Dict, Any, Optional
 
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo
 
-# App-wide CLA theme (TOML → CSS variables)
-from utils.theme import inject_theme, hero
+from utils.theme import inject_theme
 
 st.set_page_config(page_title="profilon — Configure & Run", layout="wide")
-inject_theme()  # global CSS once
+inject_theme()
 
 # ---------- Databricks SDK client (no Spark) ----------
 try:
@@ -28,13 +27,54 @@ except Exception as e:
         f"Check credentials / environment. Details: {e}"
     )
 
+# ---------- Robust logo loader (base64) ----------
+def _load_logo_b64() -> str | None:
+    here = Path(__file__).resolve()
+    candidates = [
+        here.parent.parent / "assets" / "cla_logo_white.png",  # src/profilon/assets/...
+        here.parents[2] / "assets" / "cla_logo_white.png",     # repo-root/assets/...
+        here.parents[2] / "Assets" / "cla_logo_white.png",     # optional legacy casing
+    ]
+    for p in candidates:
+        try:
+            with open(p, "rb") as fh:
+                return base64.b64encode(fh.read()).decode("utf-8")
+        except Exception:
+            continue
+    return None
+
+_logo_b64 = _load_logo_b64()
+
 # ---------- Header with right-aligned CLA logo ----------
 left, right = st.columns([6, 1])
 with left:
-    hero("Configure &amp; Run", "Profile targets with DQX-ready rule generation")
+    st.markdown(
+        """
+        <div style="display:flex;align-items:flex-end;gap:10px;">
+          <div class="pf-hero__title-box"
+               style="
+                 border: 1px solid var(--cla-riptide-shade-medium);
+                 border-radius: 12px;
+                 padding: 10px 14px;
+                 background: var(--cla-navy-shade-dark);
+                 box-shadow: 0 1px 8px rgba(0,0,0,.25);
+               ">
+            <h1 class="pf-hero__title" style="margin:0;font-size:34px">Configure &amp; Run</h1>
+            <div class="cla-muted" style="margin-top:2px">
+              Profile targets with DQX-ready rule generation
+            </div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 with right:
-    # exact path/casing matters
-    st.image("assets/cla_logo_white.png", output_format="PNG", use_column_width=False, width=140)
+    if _logo_b64:
+        st.markdown(
+            f'<img alt="CLA" style="width:110px;height:auto;display:block;margin-left:auto;" '
+            f'src="data:image/png;base64,{_logo_b64}"/>',
+            unsafe_allow_html=True,
+        )
 
 st.markdown("<div class='cla-hr'></div>", unsafe_allow_html=True)
 
@@ -76,7 +116,6 @@ def sdk_list_columns(_wc: WorkspaceClient, catalog: str, schema: str, table: str
     try:
         t = _wc.tables.get(full_name=f"{catalog}.{schema}.{table}")
         cols = getattr(t, "columns", None) or []
-        # Each column has .name; fallback to dict format if needed
         return [getattr(c, "name", None) or (c.get("name") if isinstance(c, dict) else None) for c in cols if c]
     except Exception as e:
         st.info(f"Column list unavailable ({e}); you can continue without column selection.")
@@ -88,7 +127,6 @@ def validate_volume_path(p: str) -> None:
         raise ValueError("Path must start with /Volumes/<catalog>/<schema>/<volume>/...")
 
 def save_text_overwrite(path: str, text: str) -> None:
-    # Writes to Volumes or Workspace Files or local
     if path.startswith("/Volumes/"):
         try:
             from databricks.sdk.runtime import dbutils
@@ -135,7 +173,7 @@ with st.sidebar:
     job_id = st.text_input("Databricks Job ID", placeholder="1234567890 (required to run)")
     run_button = st.button("Run Job (Save + Trigger)", use_container_width=True)
     st.divider()
-    if st.button("🔄 Refresh UC listings", use_container_width=True):
+    if st.button("Refresh UC listings", use_container_width=True):
         sdk_list_catalogs.clear()
         sdk_list_schemas.clear()
         sdk_list_tables.clear()
@@ -196,13 +234,13 @@ if mode == "pipeline":
 
 elif mode == "catalog":
     catalog = st.selectbox("Catalog", catalogs) if catalogs else st.text_input("Catalog", value="dq_prd")
-    name_param = catalog  # profiles all tables in catalog
+    name_param = catalog
 
 elif mode == "schema":
     catalog = st.selectbox("Catalog", catalogs) if catalogs else st.text_input("Catalog", value="dq_prd")
     schemas = sdk_list_schemas(wc, catalog) if catalog else []
     schema = st.selectbox("Schema", schemas) if schemas else st.text_input("Schema", value="monitoring")
-    name_param = f"{catalog}.{schema}"  # profiles all tables in schema
+    name_param = f"{catalog}.{schema}"
 
 else:  # table
     catalog = st.selectbox("Catalog", catalogs) if catalogs else st.text_input("Catalog", value="dq_prd")
@@ -214,7 +252,7 @@ else:  # table
     if selected_tables:
         name_param = ",".join(f"{catalog}.{schema}.{t}" for t in selected_tables)
     else:
-        name_param = f"{catalog}.{schema}"  # treat as “all tables in schema”
+        name_param = f"{catalog}.{schema}"
 
     if len(selected_tables) == 1:
         all_cols = sdk_list_columns(wc, catalog, schema, selected_tables[0])
@@ -312,10 +350,8 @@ with colA:
 
 with colB:
     if st.button("🚀 Save + Trigger Job", use_container_width=True) or False:
-        # keep previous sidebar button behavior as well
         pass
 
-# Keep sidebar button behavior (so both trigger options work)
 if "run_button" in locals() and run_button:
     if not job_id.strip().isdigit():
         st.error("Enter a numeric Job ID in the sidebar.")
