@@ -1,13 +1,13 @@
-/* =============================================================================
-   CLA Global Theme (Dark) — Streamlit
-   Single source of truth for color tokens, typography, spacing, components.
-   ============================================================================= */
+/* ======================================================================
+   Profilon / CLA — Theme CSS (Dark)
+   Save as: src/profilon/assets/theme.css
+   ----------------------------------------------------------------------
+   Uses CSS variables so Streamlit pages can stay consistent.
+   ====================================================================== */
 
-/* -------------------------------
-   Color Tokens (Exact HEX matches)
-   ------------------------------- */
+/* ---------- Brand tokens (exact HEX from guidelines) ---------- */
 :root {
-  /* Core (Primary) */
+  /* Core */
   --cla-riptide: #7DD2D3;
   --cla-navy: #2E334E;
 
@@ -27,78 +27,71 @@
   --cla-riptide-tint-light:  #C2EAEA;
   --cla-riptide-tint-medium: #A4DFE0;
   --cla-riptide-tint-dark:   #95D9DB;
-
   --cla-celadon-tint-light:  #F5F7D1;
   --cla-celadon-tint-medium: #EEF2B2;
   --cla-celadon-tint-dark:   #E7EC93;
-
   --cla-saffron-tint-light:  #FEEECE;
   --cla-saffron-tint-medium: #FDDC9C;
   --cla-saffron-tint-dark:   #FCD17B;
-
   --cla-scarlett-tint-light: #FBCDC4;
   --cla-scarlett-tint-medium:#F69B89;
   --cla-scarlett-tint-dark:  #F37962;
 
   /* Shades */
-  --cla-riptide-shade-light: #49BFC1;
-  --cla-riptide-shade-medium:#39A5A7;
-  --cla-riptide-shade-dark:  #24787A;
+  --cla-riptide-shade-light:  #49BFC1;
+  --cla-riptide-shade-medium: #39A5A7;
+  --cla-riptide-shade-dark:   #24787A;
+  --cla-navy-shade-light:     #262A40;
+  --cla-navy-shade-medium:    #1E2133;
+  --cla-navy-shade-dark:      #171927;
 
-  --cla-navy-shade-light:    #262A40;
-  --cla-navy-shade-medium:   #1E2133;
-  --cla-navy-shade-dark:     #171927;
-
-  /* Derived Theme Tokens (Dark mode) */
+  /* ---------- Derived dark theme tokens ---------- */
   --cla-bg: #111315;
   --cla-surface: #16191d;
-  --cla-surface-alt: #191d23;
+  --cla-surface-2: #1a1e23;
   --cla-border: #1f2329;
-  --cla-border-strong: #2a2f37;
-
   --cla-text: var(--cla-cloud);
   --cla-text-muted: var(--cla-smoke);
   --cla-primary: var(--cla-riptide);
   --cla-accent: var(--cla-navy);
+  --cla-accent-strong: var(--cla-navy-shade-dark);
   --cla-cta: var(--cla-saffron);
   --cla-danger: var(--cla-scarlett);
-  --cla-success: var(--cla-celadon);
 
-  /* Alpha utilities */
+  /* Alphas / utilities */
   --cla-alpha-0: 0;
   --cla-alpha-2: 0.02;
   --cla-alpha-4: 0.04;
   --cla-alpha-8: 0.08;
 
-  /* Focus ring */
-  --cla-focus: var(--cla-saffron);
-  --cla-focus-shadow: rgba(251, 197, 90, 0.25);
-
-  /* Radii / spacing */
-  --cla-radius-xs: 4px;
-  --cla-radius-sm: 6px;
-  --cla-radius-md: 8px;
-  --cla-radius-lg: 10px;
-  --cla-gap-sm: 8px;
-  --cla-gap-md: 12px;
-  --cla-gap-lg: 16px;
-
-  /* Typography */
-  --cla-font-sans: Inter, "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, "Noto Sans", "Liberation Sans", sans-serif;
-  --cla-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-
-  /* Hero + hairline gradients */
+  /* Soft hero background using alpha (no inline rgba elsewhere) */
   --cla-hero-bg: linear-gradient(
     180deg,
     rgba(0, 0, 0, var(--cla-alpha-0)) 0%,
     rgba(255, 255, 255, var(--cla-alpha-2)) 100%
   );
+
+  /* Hairline divider */
   --cla-hr: linear-gradient(90deg, transparent, var(--cla-border), transparent);
+
+  /* Typography */
+  --cla-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+  --cla-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Radii & spacing */
+  --cla-radius-sm: 6px;
+  --cla-radius-md: 8px;
+  --cla-radius-lg: 10px;
+  --cla-pad-sm: 8px;
+  --cla-pad-md: 12px;
+  --cla-pad-lg: 16px;
+
+  /* Shadows */
+  --cla-shadow-1: 0 1px 2px rgba(0,0,0,.35);
+  --cla-shadow-2: 0 6px 18px rgba(0,0,0,.25);
 }
 
-/* -------------------------------
-   Base + Reset-ish
-   ------------------------------- */
+/* ---------- Base page ---------- */
 html, body, [data-testid="stAppViewContainer"] {
   background-color: var(--cla-bg);
   color: var(--cla-text);
@@ -107,32 +100,158 @@ html, body, [data-testid="stAppViewContainer"] {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Scrollbar (subtle) */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: #20242a; border-radius: 10px; border: 2px solid #121418;
+}
+*::-webkit-scrollbar-thumb:hover { background: #2a3038; }
+
+/* ---------- Headings & typography ---------- */
+h1 { font-size: 1.7rem; line-height: 1.2; font-weight: 900; margin: 0.4rem 0 0.6rem; color: var(--cla-cloud); }
+h2 { font-size: 1.28rem; line-height: 1.32; font-weight: 800; margin: 0.8rem 0 0.5rem; color: var(--cla-riptide-shade-light); }
+h3 { font-size: 1.08rem; line-height: 1.35; font-weight: 800; margin: 0.8rem 0 0.35rem; color: var(--cla-saffron); }
+h4 { font-size: 1.0rem;  line-height: 1.3;  font-weight: 750; margin: 0.7rem 0 0.35rem; color: var(--cla-celadon); }
+h5 { font-size: .95rem;  line-height: 1.28; font-weight: 700; margin: 0.6rem 0 0.3rem;  color: var(--cla-smoke); }
+h6 { font-size: .9rem;   line-height: 1.24; font-weight: 700; margin: 0.5rem 0 0.25rem; color: var(--cla-smoke); }
+
+p, label, span, li { font-size: 0.95rem; }
+small, .muted { color: var(--cla-text-muted); }
+
+.cla-muted { color: var(--cla-text-muted); font-weight: 600; }
+
+/* Inline code */
+code, pre code, .katex { font-family: var(--cla-font-mono); }
+
+/* ---------- Links ---------- */
 a, a:visited { color: var(--cla-primary); text-decoration: none; }
 a:hover { color: var(--cla-riptide-shade-light); text-decoration: underline; }
 
-h1 { font-size: 1.6rem; line-height: 1.2; font-weight: 800; color: var(--cla-text); margin: 0.2rem 0 0.6rem; }
-h2 { font-size: 1.25rem; line-height: 1.3; font-weight: 750; color: var(--cla-text); margin: 0.8rem 0 0.4rem; }
-h3 { font-size: 1.05rem; line-height: 1.35; font-weight: 700; color: var(--cla-text); margin: 0.8rem 0 0.3rem; }
-
-p, label, span, li { font-size: 0.95rem; }
-.cla-muted { color: var(--cla-text-muted); font-weight: 600; }
-
-/* Hairline divider */
+/* ---------- Dividers / sections ---------- */
 .cla-hr { height: 1px; background: var(--cla-hr); border: none; margin: 16px 0; }
-
-/* Section accent */
 .cla-section { border-left: 4px solid var(--cla-primary); padding-left: 10px; margin: 12px 0 6px 0; }
 
-/* -------------------------------
-   Layout Containers / Cards
-   ------------------------------- */
+/* ---------- Cards & containers ---------- */
 div[data-testid="stVerticalBlock"] > div[data-testid="stHorizontalBlock"] > div {
   background-color: var(--cla-surface);
   border: 1px solid var(--cla-border);
   border-radius: var(--cla-radius-md);
-  padding: 12px 14px;
+  padding: var(--cla-pad-md) calc(var(--cla-pad-md) + 2px);
+  box-shadow: var(--cla-shadow-1);
 }
 
+/* ---------- Sidebar ---------- */
+section[data-testid="stSidebar"] {
+  background-color: #0e1013;
+  border-right: 1px solid var(--cla-border);
+}
+section[data-testid="stSidebar"] .stButton > button {
+  width: 100%;
+}
+
+/* ---------- Inputs ---------- */
+label, .stSelectbox label, .stTextInput label, .stNumberInput label, .stMultiSelect label {
+  font-weight: 700; color: var(--cla-text);
+}
+
+/* baseweb <Select> family + text/number inputs */
+.stSelectbox div[data-baseweb="select"]>div,
+.stMultiSelect div[data-baseweb="select"]>div,
+.stTextInput input, .stNumberInput input, .stTextArea textarea {
+  background-color: #0e1013 !important;
+  color: var(--cla-text) !important;
+  border: 1px solid var(--cla-border) !important;
+  border-radius: var(--cla-radius-sm) !important;
+  box-shadow: none !important;
+}
+
+/* focus ring -> saffron, hover outlines */
+.stTextInput input:focus, .stNumberInput input:focus, .stTextArea textarea:focus {
+  outline: 2px solid var(--cla-saffron) !important;
+  border-color: var(--cla-saffron-tint-dark) !important;
+}
+.stSelectbox div[data-baseweb="select"]:hover > div,
+.stMultiSelect div[data-baseweb="select"]:hover > div {
+  border-color: var(--cla-saffron-tint-dark) !important;
+}
+.stSelectbox div[data-baseweb="select"]:focus-within > div,
+.stMultiSelect div[data-baseweb="select"]:focus-within > div {
+  outline: 2px solid var(--cla-saffron) !important;
+  border-color: var(--cla-saffron-tint-dark) !important;
+}
+
+/* dropdown menu */
+div[role="listbox"] {
+  background: var(--cla-surface-2) !important;
+  border: 1px solid var(--cla-border) !important;
+  border-radius: var(--cla-radius-sm) !important;
+}
+div[role="option"] {
+  padding: 8px 10px !important;
+}
+div[role="option"][aria-selected="true"] {
+  background: rgba(251, 197, 90, 0.15) !important; /* saffron wash */
+  color: var(--cla-cloud) !important;
+}
+
+/* Toggle & checkbox highlights */
+.stCheckbox > label:hover,
+.stToggle > label:hover { color: var(--cla-saffron); }
+
+/* ---------- Buttons ---------- */
+.stButton>button {
+  background-color: var(--cla-cta);
+  color: #111;
+  border: 1px solid var(--cla-saffron-tint-dark);
+  font-weight: 800;
+  border-radius: var(--cla-radius-sm);
+  box-shadow: var(--cla-shadow-1);
+}
+.stButton>button:hover { filter: brightness(0.96); }
+.stButton>button:focus { outline: 2px solid var(--cla-saffron); }
+
+/* Secondary button (opt-in class) */
+button.pf-secondary {
+  background: var(--cla-riptide);
+  color: #0f1216;
+  border: 1px solid var(--cla-riptide-shade-light);
+}
+
+/* Danger */
+button.pf-danger {
+  background: var(--cla-danger);
+  color: #111;
+  border: 1px solid var(--cla-scarlett-tint-dark);
+}
+
+/* ---------- Tables / DataFrames ---------- */
+[data-testid="stTable"], [data-testid="stDataFrame"] {
+  border: 1px solid var(--cla-border);
+  border-radius: var(--cla-radius-md);
+  box-shadow: var(--cla-shadow-1);
+}
+[data-testid="stTable"] thead tr th, [data-testid="stDataFrame"] thead tr th {
+  background: #0f1216;
+  color: var(--cla-smoke);
+  font-weight: 800;
+  border-bottom: 1px solid var(--cla-border);
+}
+[data-testid="stTable"] tbody tr td, [data-testid="stDataFrame"] tbody tr td {
+  border-color: #1c2128 !important;
+}
+
+/* ---------- Code / YAML blocks ---------- */
+pre, code, .stCodeBlock {
+  color: var(--cla-cloud);
+}
+pre, .stCodeBlock {
+  background: #0f1216 !important;
+  border: 1px solid var(--cla-border) !important;
+  border-radius: var(--cla-radius-sm) !important;
+  box-shadow: var(--cla-shadow-1);
+}
+
+/* ---------- Hero & brand headline ---------- */
 .pf-hero {
   display: flex; align-items: center; justify-content: center; text-align: center;
   width: 100%;
@@ -142,18 +261,28 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stHorizontalBlock"] > div 
 }
 .pf-hero__inner { width: min(1200px, 96%); margin: 0 auto; padding: 0 clamp(8px, 2vw, 24px); }
 .pf-hero__title {
-  margin: 0; font-weight: 900; letter-spacing: 0.3px;
+  margin: 0; font-weight: 900; letter-spacing: .3px;
   font-size: clamp(1.75rem, 1.1rem + 2vw, 2.625rem); color: var(--cla-cloud);
 }
 .pf-hero__motto {
   margin: 8px 0 0; font-weight: 800;
-  font-size: clamp(0.875rem, 0.7rem + 0.5vw, 1.125rem); line-height: 1.25;
+  font-size: clamp(.875rem, .7rem + .5vw, 1.125rem); line-height: 1.25;
   color: var(--cla-riptide-shade-light); word-spacing: 1px;
 }
 .pf-hero__motto .accent { color: var(--cla-riptide); }
 
 .pf-hr { height: 1px; border: 0; margin: clamp(10px, 2vw, 18px) 0; background: var(--cla-hr); }
 
+/* Logo kept consistent across screens */
+.pf-logo {
+  width: 140px;
+  height: auto;
+  display: block;
+  margin: 0 auto 10px auto;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
+}
+
+/* ---------- Grid & cards ---------- */
 .pf-grid {
   display: grid; grid-template-columns: repeat(12, 1fr);
   gap: clamp(10px, 1.8vw, 18px); width: min(1200px, 96%); margin: 0 auto;
@@ -161,180 +290,130 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stHorizontalBlock"] > div 
 .pf-card {
   grid-column: span 6; background: var(--cla-surface);
   border: 1px solid var(--cla-border); border-radius: var(--cla-radius-lg);
-  padding: clamp(12px, 1.6vw, 18px);
+  padding: clamp(12px, 1.6vw, 18px); box-shadow: var(--cla-shadow-1);
 }
-.pf-card h3 { margin: 0 0 8px 0; font-size: clamp(1.05rem, 0.96rem + 0.4vw, 1.25rem); }
+.pf-card h3 { margin: 0 0 8px 0; font-size: clamp(1.05rem, .96rem + .4vw, 1.25rem); }
 @media (max-width: 860px) { .pf-card { grid-column: span 12; } }
 
-/* -------------------------------
-   Sidebar
-   ------------------------------- */
-section[data-testid="stSidebar"] {
-  background-color: var(--cla-navy-shade-medium);
-  border-right: 1px solid var(--cla-border);
-}
-section[data-testid="stSidebar"] * {
-  color: var(--cla-cloud);
-}
-
-/* -------------------------------
-   Inputs / Controls
-   ------------------------------- */
-label, .stSelectbox label, .stTextInput label, .stNumberInput label, .stMultiSelect label {
-  font-weight: 700; color: var(--cla-text);
-}
-
-/* Text / Number / TextArea inputs */
-.stTextInput input, .stNumberInput input, textarea {
-  background-color: #0e1013 !important;
-  color: var(--cla-text) !important;
-  border: 1px solid var(--cla-border) !important;
-  border-radius: var(--cla-radius-sm);
-  transition: border-color 120ms ease, box-shadow 120ms ease;
-}
-
-.stTextInput input:focus, .stNumberInput input:focus, textarea:focus {
-  outline: none !important;
-  border-color: var(--cla-focus) !important;
-  box-shadow: 0 0 0 3px var(--cla-focus-shadow) !important;
-}
-
-/* Selectbox / Multiselect (BaseWeb) */
-.stSelectbox div[data-baseweb="select"] > div,
-.stMultiSelect div[data-baseweb="select"] > div {
-  background-color: #0e1013 !important;
-  color: var(--cla-text) !important;
-  border: 1px solid var(--cla-border) !important;
-  border-radius: var(--cla-radius-sm);
-  transition: border-color 120ms ease, box-shadow 120ms ease;
-  min-height: 38px;
-}
-
-.stSelectbox div[data-baseweb="select"] > div:focus-within,
-.stMultiSelect div[data-baseweb="select"] > div:focus-within {
-  border-color: var(--cla-focus) !important;
-  box-shadow: 0 0 0 3px var(--cla-focus-shadow) !important;
-}
-
-/* Dropdown menu panel */
-div[role="listbox"] {
-  background: var(--cla-surface-alt) !important;
-  border: 1px solid var(--cla-border-strong) !important;
-  border-radius: var(--cla-radius-sm) !important;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important;
-}
-div[role="option"] {
-  color: var(--cla-cloud) !important;
-}
-div[role="option"][aria-selected="true"],
-div[role="option"]:hover {
-  background: rgba(251,197,90,0.12) !important; /* saffron wash */
-}
-
-/* Checkboxes / Radios */
-.stCheckbox [data-baseweb="checkbox"] {
-  border-color: var(--cla-border) !important;
-}
-.stCheckbox [data-baseweb="checkbox"]:focus-within {
-  box-shadow: 0 0 0 3px var(--cla-focus-shadow) !important;
-}
-
-/* Buttons (CTA = saffron) */
-.stButton > button {
-  background-color: var(--cla-cta) !important;
-  color: #111 !important;
-  border: 1px solid var(--cla-saffron-tint-dark) !important;
-  font-weight: 800 !important;
-  border-radius: var(--cla-radius-sm) !important;
-  transition: filter 120ms ease, transform 40ms ease;
-}
-.stButton > button:hover { filter: brightness(0.95); }
-.stButton > button:active { transform: translateY(1px); }
-
-/* Secondary button style (opt-in class) */
-button.cla-secondary {
-  background-color: var(--cla-surface) !important;
-  color: var(--cla-cloud) !important;
-  border: 1px solid var(--cla-border) !important;
-}
-button.cla-secondary:hover { filter: brightness(1.05); }
-
-/* Global focus style fallback */
-*:focus-visible {
-  outline: 2px solid var(--cla-focus);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px var(--cla-focus-shadow);
-}
-
-/* -------------------------------
-   Tables / Code
-   ------------------------------- */
-[data-testid="stTable"] table, .stDataFrame {
-  border: 1px solid var(--cla-border);
-  border-radius: var(--cla-radius-sm);
+/* ---------- Wizard / stepper ---------- */
+.pf-wizard { width: min(1100px, 98%); margin: 4px auto; }
+.pf-step {
   background: var(--cla-surface);
-}
-
-pre, code, kbd, samp {
-  color: var(--cla-cloud);
-  font-family: var(--cla-font-mono);
-  background: #0e1013;
   border: 1px solid var(--cla-border);
-  border-radius: var(--cla-radius-xs);
-  padding: 2px 6px;
-}
-
-/* -------------------------------
-   Alerts
-   ------------------------------- */
-.stAlert {
   border-radius: var(--cla-radius-md);
-  border: 1px solid var(--cla-border);
+  padding: var(--cla-pad-lg);
+  margin-bottom: 12px;
 }
-.stAlert[data-baseweb="notification"] {
-  background: var(--cla-surface-alt);
+.pf-step__header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
 }
-.stAlert [data-testid="stMarkdownContainer"] p {
-  margin: 0.2rem 0;
+.pf-step__pill {
+  background: rgba(251, 197, 90, 0.18); /* saffron wash */
+  color: var(--cla-cloud);
+  border: 1px solid var(--cla-saffron-tint-dark);
+  border-radius: 999px; padding: 4px 10px; font-weight: 800; font-size: .78rem;
+}
+.pf-step__title { font-weight: 900; color: var(--cla-cloud); font-size: 1.05rem; }
+
+/* ---------- Status / loading ---------- */
+.pf-spinner {
+  width: 56px; height: 56px; border-radius: 50%;
+  border: 4px solid rgba(125,210,211,.18);
+  border-top-color: var(--cla-riptide);
+  animation: pf-spin 1s linear infinite; margin: 10px auto;
+}
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+
+.pf-progress {
+  position: relative; height: 8px; border-radius: 999px;
+  background: #0f1216; border: 1px solid var(--cla-border); overflow: hidden;
+}
+.pf-progress::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    rgba(125,210,211,.0) 0%,
+    rgba(125,210,211,.45) 50%,
+    rgba(125,210,211,.0) 100%);
+  transform: translateX(-100%);
+  animation: pf-sweep 1.2s ease-in-out infinite;
+}
+@keyframes pf-sweep {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
 }
 
-/* Variants via utility classes (optional) */
-.cla-alert--success { border-color: rgba(226,232,104,0.35); box-shadow: 0 0 0 3px rgba(226,232,104,0.12); }
-.cla-alert--warn    { border-color: rgba(251,197,90,0.35);  box-shadow: 0 0 0 3px rgba(251,197,90,0.12); }
-.cla-alert--error   { border-color: rgba(238,83,64,0.35);   box-shadow: 0 0 0 3px rgba(238,83,64,0.12); }
-
-/* -------------------------------
-   Badges / Chips (utility)
-   ------------------------------- */
-.cla-badge {
+/* ---------- Badges / chips ---------- */
+.badge {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 8px; font-weight: 700; font-size: 0.75rem;
-  border-radius: 999px; border: 1px solid var(--cla-border);
-  background: var(--cla-surface-alt); color: var(--cla-cloud);
+  background: rgba(57,165,167,.18);
+  border: 1px solid var(--cla-riptide-shade-light);
+  color: var(--cla-cloud); padding: 4px 10px; border-radius: 999px;
+  font-weight: 700; font-size: .8rem;
 }
-.cla-badge--info    { border-color: rgba(125,210,211,0.35); background: rgba(125,210,211,0.12); color: var(--cla-riptide); }
-.cla-badge--warn    { border-color: rgba(251,197,90,0.35);  background: rgba(251,197,90,0.12);  color: var(--cla-cta); }
-.cla-badge--error   { border-color: rgba(238,83,64,0.35);   background: rgba(238,83,64,0.12);   color: var(--cla-danger); }
-.cla-badge--ok      { border-color: rgba(226,232,104,0.35); background: rgba(226,232,104,0.12); color: var(--cla-success); }
+.badge.warn  { background: rgba(251,197,90,.15); border-color: var(--cla-saffron-tint-dark); }
+.badge.error { background: rgba(238,83,64,.15);  border-color: var(--cla-scarlett-tint-dark); }
 
-/* -------------------------------
-   Logo slot (center, responsive width)
-   ------------------------------- */
-.cla-logo-wrap {
-  display: flex; align-items: center; justify-content: center;
-  margin: 8px 0 6px;
+/* ---------- Pills for filters / tags ---------- */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #0f1216; border: 1px solid var(--cla-border);
+  color: var(--cla-cloud); padding: 4px 10px; border-radius: 999px;
+  font-weight: 700; font-size: .78rem;
 }
-.cla-logo {
-  width: clamp(140px, 12vw, 220px);
-  height: auto;
-  image-rendering: -webkit-optimize-contrast;
+.pill.active { border-color: var(--cla-riptide); box-shadow: 0 0 0 2px rgba(125,210,211,.15); }
+
+/* ---------- Toasts (st.status inlines look) ---------- */
+.pf-toast {
+  background: var(--cla-surface);
+  border: 1px solid var(--cla-border);
+  border-left: 4px solid var(--cla-riptide);
+  padding: 10px 12px; border-radius: var(--cla-radius-sm);
+  box-shadow: var(--cla-shadow-1);
+}
+.pf-toast.warn  { border-left-color: var(--cla-saffron); }
+.pf-toast.error { border-left-color: var(--cla-scarlett); }
+
+/* ---------- Utility colors ---------- */
+.text-riptide  { color: var(--cla-riptide); }
+.text-saffron  { color: var(--cla-saffron); }
+.text-celadon  { color: var(--cla-celadon); }
+.text-scarlett { color: var(--cla-scarlett); }
+.text-smoke    { color: var(--cla-smoke); }
+.bg-surface    { background: var(--cla-surface); }
+.bg-surface-2  { background: var(--cla-surface-2); }
+.bordered      { border: 1px solid var(--cla-border); border-radius: var(--cla-radius-sm); }
+
+/* ---------- Streamlit toolbar polish ---------- */
+[data-testid="stToolbar"] { background: transparent; }
+
+/* ---------- File dropzone ---------- */
+.stFileUploader div[data-baseweb="file-uploader"] {
+  background: #0f1216 !important;
+  border: 1px dashed var(--cla-border) !important;
+}
+.stFileUploader div[data-baseweb="file-uploader"]:hover {
+  border-color: var(--cla-riptide-shade-light) !important;
 }
 
-/* -------------------------------
-   Misc
-   ------------------------------- */
-hr { border: 0; height: 1px; background: var(--cla-hr); }
-.small { font-size: 0.85rem; }
-.muted { color: var(--cla-text-muted); }
+/* ---------- Radio / Segmented control ---------- */
+div[role="radiogroup"] > label {
+  background: #0f1216; border: 1px solid var(--cla-border); color: var(--cla-cloud);
+  border-radius: 999px; padding: 6px 12px; margin-right: 6px;
+}
+div[role="radiogroup"] > label[data-checked="true"] {
+  border-color: var(--cla-riptide-shade-light);
+  box-shadow: 0 0 0 2px rgba(125,210,211,.14);
+}
 
-/* End of theme.css */
+/* ---------- Tabs ---------- */
+[data-baseweb="tab-list"] {
+  border-bottom: 1px solid var(--cla-border);
+}
+[data-baseweb="tab"] {
+  color: var(--cla-smoke);
+}
+[data-baseweb="tab"][aria-selected="true"] {
+  color: var(--cla-cloud);
+  border-bottom: 2px solid var(--cla-riptide);
+}
