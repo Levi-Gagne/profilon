@@ -3,7 +3,7 @@
 import os
 import base64
 import streamlit as st
-from profilon.utils.theme import inject_theme  # absolute import
+from utils.theme import inject_theme  # absolute import
 
 
 def _load_logo_b64(path: str) -> str | None:

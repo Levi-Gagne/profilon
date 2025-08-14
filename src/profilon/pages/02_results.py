@@ -3,7 +3,7 @@
 import json, time
 import streamlit as st
 from databricks.sdk import WorkspaceClient
-from profilon.utils.theme import inject_theme
+from utils.theme import inject_theme
 
 st.set_page_config(page_title="View Checks", layout="wide")
 inject_theme()
