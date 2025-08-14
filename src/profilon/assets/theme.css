@@ -1,150 +1,340 @@
-:root{
-  /* === CLA Brand Tokens (HEX) === */
-  --cla-riptide:#7DD2D3;
-  --cla-navy:#2E334E;
-  --cla-celadon:#E2E868;
-  --cla-saffron:#FBC55A;
-  --cla-scarlett:#EE5340;
-  --cla-charcoal:#25282A;
-  --cla-smoke:#ABAEAB;
-  --cla-cloud:#F7F7F6;
-  --cla-white:#FFFFFF;
-  --cla-black:#000000;
-  --cla-riptide-tint-light:#C2EAEA;
-  --cla-riptide-tint-medium:#A4DFE0;
-  --cla-riptide-tint-dark:#95D9DB;
-  --cla-celadon-tint-light:#F5F7D1;
-  --cla-celadon-tint-medium:#EEF2B2;
-  --cla-celadon-tint-dark:#E7EC93;
-  --cla-saffron-tint-light:#FEEECE;
-  --cla-saffron-tint-medium:#FDDC9C;
-  --cla-saffron-tint-dark:#FCD17B;
-  --cla-scarlett-tint-light:#FBCDC4;
+/* =============================================================================
+   CLA Global Theme (Dark) — Streamlit
+   Single source of truth for color tokens, typography, spacing, components.
+   ============================================================================= */
+
+/* -------------------------------
+   Color Tokens (Exact HEX matches)
+   ------------------------------- */
+:root {
+  /* Core (Primary) */
+  --cla-riptide: #7DD2D3;
+  --cla-navy: #2E334E;
+
+  /* Secondary */
+  --cla-celadon: #E2E868;
+  --cla-saffron: #FBC55A;
+  --cla-scarlett: #EE5340;
+
+  /* Neutrals */
+  --cla-charcoal: #25282A;
+  --cla-smoke: #ABAEAB;
+  --cla-cloud: #F7F7F6;
+  --cla-white: #FFFFFF;
+  --cla-black: #000000;
+
+  /* Tints */
+  --cla-riptide-tint-light:  #C2EAEA;
+  --cla-riptide-tint-medium: #A4DFE0;
+  --cla-riptide-tint-dark:   #95D9DB;
+
+  --cla-celadon-tint-light:  #F5F7D1;
+  --cla-celadon-tint-medium: #EEF2B2;
+  --cla-celadon-tint-dark:   #E7EC93;
+
+  --cla-saffron-tint-light:  #FEEECE;
+  --cla-saffron-tint-medium: #FDDC9C;
+  --cla-saffron-tint-dark:   #FCD17B;
+
+  --cla-scarlett-tint-light: #FBCDC4;
   --cla-scarlett-tint-medium:#F69B89;
-  --cla-scarlett-tint-dark:#F37962;
-  --cla-riptide-shade-light:#49BFC1;
+  --cla-scarlett-tint-dark:  #F37962;
+
+  /* Shades */
+  --cla-riptide-shade-light: #49BFC1;
   --cla-riptide-shade-medium:#39A5A7;
-  --cla-riptide-shade-dark:#24787A;
-  --cla-navy-shade-light:#262A40;
-  --cla-navy-shade-medium:#1E2133;
-  --cla-navy-shade-dark:#171927;
+  --cla-riptide-shade-dark:  #24787A;
 
-  /* === Derived Theme Tokens (dark) === */
-  --cla-bg:#111315;
-  --cla-surface:#16191d;
-  --cla-border:#1f2329;
-  --cla-text:var(--cla-cloud);
-  --cla-text-muted:var(--cla-smoke);
-  --cla-primary:var(--cla-riptide);
-  --cla-accent:var(--cla-navy);
-  --cla-accent-strong:var(--cla-navy-shade-dark);
-  --cla-cta:var(--cla-saffron);
-  --cla-danger:var(--cla-scarlett);
+  --cla-navy-shade-light:    #262A40;
+  --cla-navy-shade-medium:   #1E2133;
+  --cla-navy-shade-dark:     #171927;
 
-  /* Alpha/utility */
-  --cla-alpha-0:0;
-  --cla-alpha-2:0.02;
-  --cla-alpha-4:0.04;
-  --cla-alpha-8:0.08;
+  /* Derived Theme Tokens (Dark mode) */
+  --cla-bg: #111315;
+  --cla-surface: #16191d;
+  --cla-surface-alt: #191d23;
+  --cla-border: #1f2329;
+  --cla-border-strong: #2a2f37;
 
-  /* Soft hero bg */
-  --cla-hero-bg:linear-gradient(
+  --cla-text: var(--cla-cloud);
+  --cla-text-muted: var(--cla-smoke);
+  --cla-primary: var(--cla-riptide);
+  --cla-accent: var(--cla-navy);
+  --cla-cta: var(--cla-saffron);
+  --cla-danger: var(--cla-scarlett);
+  --cla-success: var(--cla-celadon);
+
+  /* Alpha utilities */
+  --cla-alpha-0: 0;
+  --cla-alpha-2: 0.02;
+  --cla-alpha-4: 0.04;
+  --cla-alpha-8: 0.08;
+
+  /* Focus ring */
+  --cla-focus: var(--cla-saffron);
+  --cla-focus-shadow: rgba(251, 197, 90, 0.25);
+
+  /* Radii / spacing */
+  --cla-radius-xs: 4px;
+  --cla-radius-sm: 6px;
+  --cla-radius-md: 8px;
+  --cla-radius-lg: 10px;
+  --cla-gap-sm: 8px;
+  --cla-gap-md: 12px;
+  --cla-gap-lg: 16px;
+
+  /* Typography */
+  --cla-font-sans: Inter, "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  --cla-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Hero + hairline gradients */
+  --cla-hero-bg: linear-gradient(
     180deg,
-    rgba(0,0,0,var(--cla-alpha-0)) 0%,
-    rgba(255,255,255,var(--cla-alpha-2)) 100%
+    rgba(0, 0, 0, var(--cla-alpha-0)) 0%,
+    rgba(255, 255, 255, var(--cla-alpha-2)) 100%
   );
-
-  /* Hairline divider */
-  --cla-hr:linear-gradient(90deg, transparent, var(--cla-border), transparent);
+  --cla-hr: linear-gradient(90deg, transparent, var(--cla-border), transparent);
 }
 
-/* Base */
-html,body,[data-testid="stAppViewContainer"]{
-  background-color:var(--cla-bg);
-  color:var(--cla-text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;
-  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+/* -------------------------------
+   Base + Reset-ish
+   ------------------------------- */
+html, body, [data-testid="stAppViewContainer"] {
+  background-color: var(--cla-bg);
+  color: var(--cla-text);
+  font-family: var(--cla-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography */
-h1{font-size:1.6rem;line-height:1.2;font-weight:800;color:var(--cla-text);margin:0.2rem 0 0.6rem;}
-h2{font-size:1.25rem;line-height:1.3;font-weight:750;color:var(--cla-text);margin:0.8rem 0 0.4rem;}
-h3{font-size:1.05rem;line-height:1.35;font-weight:700;color:var(--cla-text);margin:0.8rem 0 0.3rem;}
-p,label,span,li{font-size:0.95rem;}
-.cla-muted{color:var(--cla-text-muted);font-weight:600;}
+a, a:visited { color: var(--cla-primary); text-decoration: none; }
+a:hover { color: var(--cla-riptide-shade-light); text-decoration: underline; }
 
-.cla-section{border-left:4px solid var(--cla-primary);padding-left:10px;margin:12px 0 6px 0;}
-.cla-hr{height:1px;background:var(--cla-hr);border:none;margin:16px 0;}
+h1 { font-size: 1.6rem; line-height: 1.2; font-weight: 800; color: var(--cla-text); margin: 0.2rem 0 0.6rem; }
+h2 { font-size: 1.25rem; line-height: 1.3; font-weight: 750; color: var(--cla-text); margin: 0.8rem 0 0.4rem; }
+h3 { font-size: 1.05rem; line-height: 1.35; font-weight: 700; color: var(--cla-text); margin: 0.8rem 0 0.3rem; }
 
-/* Cards (column blocks) */
-div[data-testid="stVerticalBlock"]>div[data-testid="stHorizontalBlock"]>div{
-  background-color:var(--cla-surface);
-  border:1px solid var(--cla-border);
-  border-radius:8px;
-  padding:12px 14px;
+p, label, span, li { font-size: 0.95rem; }
+.cla-muted { color: var(--cla-text-muted); font-weight: 600; }
+
+/* Hairline divider */
+.cla-hr { height: 1px; background: var(--cla-hr); border: none; margin: 16px 0; }
+
+/* Section accent */
+.cla-section { border-left: 4px solid var(--cla-primary); padding-left: 10px; margin: 12px 0 6px 0; }
+
+/* -------------------------------
+   Layout Containers / Cards
+   ------------------------------- */
+div[data-testid="stVerticalBlock"] > div[data-testid="stHorizontalBlock"] > div {
+  background-color: var(--cla-surface);
+  border: 1px solid var(--cla-border);
+  border-radius: var(--cla-radius-md);
+  padding: 12px 14px;
 }
 
-/* Inputs */
-label,.stSelectbox label,.stTextInput label,.stNumberInput label,.stMultiSelect label{
-  font-weight:700;color:var(--cla-text);
+.pf-hero {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  width: 100%;
+  padding: clamp(12px, 2.5vw, 28px) 0;
+  margin: 4px 0 10px;
+  background: var(--cla-hero-bg);
 }
-.stSelectbox div[data-baseweb="select"]>div,
-.stMultiSelect  div[data-baseweb="select"]>div,
-.stTextInput input,.stNumberInput input{
-  background-color:#0e1013 !important;
-  color:var(--cla-text) !important;
-  border-color:var(--cla-border) !important;
+.pf-hero__inner { width: min(1200px, 96%); margin: 0 auto; padding: 0 clamp(8px, 2vw, 24px); }
+.pf-hero__title {
+  margin: 0; font-weight: 900; letter-spacing: 0.3px;
+  font-size: clamp(1.75rem, 1.1rem + 2vw, 2.625rem); color: var(--cla-cloud);
+}
+.pf-hero__motto {
+  margin: 8px 0 0; font-weight: 800;
+  font-size: clamp(0.875rem, 0.7rem + 0.5vw, 1.125rem); line-height: 1.25;
+  color: var(--cla-riptide-shade-light); word-spacing: 1px;
+}
+.pf-hero__motto .accent { color: var(--cla-riptide); }
+
+.pf-hr { height: 1px; border: 0; margin: clamp(10px, 2vw, 18px) 0; background: var(--cla-hr); }
+
+.pf-grid {
+  display: grid; grid-template-columns: repeat(12, 1fr);
+  gap: clamp(10px, 1.8vw, 18px); width: min(1200px, 96%); margin: 0 auto;
+}
+.pf-card {
+  grid-column: span 6; background: var(--cla-surface);
+  border: 1px solid var(--cla-border); border-radius: var(--cla-radius-lg);
+  padding: clamp(12px, 1.6vw, 18px);
+}
+.pf-card h3 { margin: 0 0 8px 0; font-size: clamp(1.05rem, 0.96rem + 0.4vw, 1.25rem); }
+@media (max-width: 860px) { .pf-card { grid-column: span 12; } }
+
+/* -------------------------------
+   Sidebar
+   ------------------------------- */
+section[data-testid="stSidebar"] {
+  background-color: var(--cla-navy-shade-medium);
+  border-right: 1px solid var(--cla-border);
+}
+section[data-testid="stSidebar"] * {
+  color: var(--cla-cloud);
 }
 
-/* Buttons */
-.stButton>button{
-  background-color:var(--cla-cta);
-  color:#111;border:1px solid var(--cla-saffron-tint-dark);
-  font-weight:800;border-radius:6px;
-}
-.stButton>button:hover{filter:brightness(0.95);}
-
-/* Sidebar */
-section[data-testid="stSidebar"]{
-  background-color:#0e1013;border-right:1px solid var(--cla-border);
+/* -------------------------------
+   Inputs / Controls
+   ------------------------------- */
+label, .stSelectbox label, .stTextInput label, .stNumberInput label, .stMultiSelect label {
+  font-weight: 700; color: var(--cla-text);
 }
 
-/* Code/YAML */
-pre,code{color:var(--cla-cloud);}
+/* Text / Number / TextArea inputs */
+.stTextInput input, .stNumberInput input, textarea {
+  background-color: #0e1013 !important;
+  color: var(--cla-text) !important;
+  border: 1px solid var(--cla-border) !important;
+  border-radius: var(--cla-radius-sm);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
 
-/* Links */
-a,a:visited{color:var(--cla-primary);text-decoration:none;}
-a:hover{color:var(--cla-riptide-shade-light);text-decoration:underline;}
+.stTextInput input:focus, .stNumberInput input:focus, textarea:focus {
+  outline: none !important;
+  border-color: var(--cla-focus) !important;
+  box-shadow: 0 0 0 3px var(--cla-focus-shadow) !important;
+}
 
-/* Reusable components */
-.pf-hero{
-  display:flex;align-items:center;justify-content:center;text-align:center;
-  width:100%;padding:clamp(12px,2.5vw,28px) 0;margin:4px 0 10px;background:var(--cla-hero-bg);
+/* Selectbox / Multiselect (BaseWeb) */
+.stSelectbox div[data-baseweb="select"] > div,
+.stMultiSelect div[data-baseweb="select"] > div {
+  background-color: #0e1013 !important;
+  color: var(--cla-text) !important;
+  border: 1px solid var(--cla-border) !important;
+  border-radius: var(--cla-radius-sm);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+  min-height: 38px;
 }
-.pf-hero__inner{width:min(1200px,96%);margin:0 auto;padding:0 clamp(8px,2vw,24px);}
-.pf-hero__title{
-  margin:0;font-weight:900;letter-spacing:0.3px;
-  font-size:clamp(1.75rem,1.1rem + 2vw,2.625rem);color:var(--cla-cloud);
-}
-.pf-hero__motto{
-  margin:8px 0 0;font-weight:800;
-  font-size:clamp(0.875rem,0.7rem + 0.5vw,1.125rem);line-height:1.25;
-  color:var(--cla-riptide-shade-light);word-spacing:1px;
-}
-.pf-hero__motto .accent{color:var(--cla-riptide);}
-.pf-hr{height:1px;border:0;margin:clamp(10px,2vw,18px) 0;background:var(--cla-hr);}
 
-.pf-grid{
-  display:grid;grid-template-columns:repeat(12,1fr);
-  gap:clamp(10px,1.8vw,18px);width:min(1200px,96%);margin:0 auto;
+.stSelectbox div[data-baseweb="select"] > div:focus-within,
+.stMultiSelect div[data-baseweb="select"] > div:focus-within {
+  border-color: var(--cla-focus) !important;
+  box-shadow: 0 0 0 3px var(--cla-focus-shadow) !important;
 }
-.pf-card{
-  grid-column:span 6;background:var(--cla-surface);
-  border:1px solid var(--cla-border);border-radius:10px;
-  padding:clamp(12px,1.6vw,18px);
-}
-.pf-card h3{margin:0 0 8px 0;font-size:clamp(1.05rem,0.96rem + 0.4vw,1.25rem);}
-@media (max-width:860px){ .pf-card{grid-column:span 12;} }
 
-/* Optional: hide Streamlit toolbar/theme switch */
-[data-testid="stToolbar"]{display:none;}
+/* Dropdown menu panel */
+div[role="listbox"] {
+  background: var(--cla-surface-alt) !important;
+  border: 1px solid var(--cla-border-strong) !important;
+  border-radius: var(--cla-radius-sm) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important;
+}
+div[role="option"] {
+  color: var(--cla-cloud) !important;
+}
+div[role="option"][aria-selected="true"],
+div[role="option"]:hover {
+  background: rgba(251,197,90,0.12) !important; /* saffron wash */
+}
+
+/* Checkboxes / Radios */
+.stCheckbox [data-baseweb="checkbox"] {
+  border-color: var(--cla-border) !important;
+}
+.stCheckbox [data-baseweb="checkbox"]:focus-within {
+  box-shadow: 0 0 0 3px var(--cla-focus-shadow) !important;
+}
+
+/* Buttons (CTA = saffron) */
+.stButton > button {
+  background-color: var(--cla-cta) !important;
+  color: #111 !important;
+  border: 1px solid var(--cla-saffron-tint-dark) !important;
+  font-weight: 800 !important;
+  border-radius: var(--cla-radius-sm) !important;
+  transition: filter 120ms ease, transform 40ms ease;
+}
+.stButton > button:hover { filter: brightness(0.95); }
+.stButton > button:active { transform: translateY(1px); }
+
+/* Secondary button style (opt-in class) */
+button.cla-secondary {
+  background-color: var(--cla-surface) !important;
+  color: var(--cla-cloud) !important;
+  border: 1px solid var(--cla-border) !important;
+}
+button.cla-secondary:hover { filter: brightness(1.05); }
+
+/* Global focus style fallback */
+*:focus-visible {
+  outline: 2px solid var(--cla-focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px var(--cla-focus-shadow);
+}
+
+/* -------------------------------
+   Tables / Code
+   ------------------------------- */
+[data-testid="stTable"] table, .stDataFrame {
+  border: 1px solid var(--cla-border);
+  border-radius: var(--cla-radius-sm);
+  background: var(--cla-surface);
+}
+
+pre, code, kbd, samp {
+  color: var(--cla-cloud);
+  font-family: var(--cla-font-mono);
+  background: #0e1013;
+  border: 1px solid var(--cla-border);
+  border-radius: var(--cla-radius-xs);
+  padding: 2px 6px;
+}
+
+/* -------------------------------
+   Alerts
+   ------------------------------- */
+.stAlert {
+  border-radius: var(--cla-radius-md);
+  border: 1px solid var(--cla-border);
+}
+.stAlert[data-baseweb="notification"] {
+  background: var(--cla-surface-alt);
+}
+.stAlert [data-testid="stMarkdownContainer"] p {
+  margin: 0.2rem 0;
+}
+
+/* Variants via utility classes (optional) */
+.cla-alert--success { border-color: rgba(226,232,104,0.35); box-shadow: 0 0 0 3px rgba(226,232,104,0.12); }
+.cla-alert--warn    { border-color: rgba(251,197,90,0.35);  box-shadow: 0 0 0 3px rgba(251,197,90,0.12); }
+.cla-alert--error   { border-color: rgba(238,83,64,0.35);   box-shadow: 0 0 0 3px rgba(238,83,64,0.12); }
+
+/* -------------------------------
+   Badges / Chips (utility)
+   ------------------------------- */
+.cla-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 8px; font-weight: 700; font-size: 0.75rem;
+  border-radius: 999px; border: 1px solid var(--cla-border);
+  background: var(--cla-surface-alt); color: var(--cla-cloud);
+}
+.cla-badge--info    { border-color: rgba(125,210,211,0.35); background: rgba(125,210,211,0.12); color: var(--cla-riptide); }
+.cla-badge--warn    { border-color: rgba(251,197,90,0.35);  background: rgba(251,197,90,0.12);  color: var(--cla-cta); }
+.cla-badge--error   { border-color: rgba(238,83,64,0.35);   background: rgba(238,83,64,0.12);   color: var(--cla-danger); }
+.cla-badge--ok      { border-color: rgba(226,232,104,0.35); background: rgba(226,232,104,0.12); color: var(--cla-success); }
+
+/* -------------------------------
+   Logo slot (center, responsive width)
+   ------------------------------- */
+.cla-logo-wrap {
+  display: flex; align-items: center; justify-content: center;
+  margin: 8px 0 6px;
+}
+.cla-logo {
+  width: clamp(140px, 12vw, 220px);
+  height: auto;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* -------------------------------
+   Misc
+   ------------------------------- */
+hr { border: 0; height: 1px; background: var(--cla-hr); }
+.small { font-size: 0.85rem; }
+.muted { color: var(--cla-text-muted); }
+
+/* End of theme.css */
