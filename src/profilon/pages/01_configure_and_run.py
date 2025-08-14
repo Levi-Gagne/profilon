@@ -1,7 +1,5 @@
 # src/profilon/pages/1_configure_&_run.py
 
-# src/profilon/pages/1_configure_&_run.py
-
 import os
 import time
 import uuid
