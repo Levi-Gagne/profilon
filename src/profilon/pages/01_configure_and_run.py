@@ -13,7 +13,7 @@ from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo
 
 # App-wide CLA theme (CSS + variables)
-from profilon.utils.theme import inject_theme
+from utils.theme import inject_theme
 
 # Optional: ANSI Color for terminal/log parity (no effect on HTML)
 try:
