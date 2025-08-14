@@ -1,5 +1,3 @@
-# src/profilon/app.py
-
 import base64
 from pathlib import Path
 
@@ -16,14 +14,13 @@ inject_theme()  # CSS variables + base styles
 
 # -------------------------
 # Logo loader (robust path resolution)
-# - First try package assets: src/profilon/assets/cla_logo_white.png
-# - Fallback to repo root:    assets/cla_logo_white.png
 # -------------------------
 def _load_logo_b64() -> str | None:
     here = Path(__file__).resolve()
     candidates = [
-        here.parent / "assets" / "cla_logo_white.png",   # src/profilon/assets/...
-        here.parents[1] / "assets" / "cla_logo_white.png",  # repo-root/assets/...
+        here.parent / "assets" / "cla_logo_white.png",       # src/profilon/assets/...
+        here.parents[1] / "assets" / "cla_logo_white.png",   # repo-root/assets/...
+        here.parents[1] / "Assets" / "cla_logo_white.png",   # optional legacy casing
     ]
     for p in candidates:
         try:
@@ -42,6 +39,9 @@ _logo_b64 = _load_logo_b64()
 st.markdown(
     """
     <style>
+      /* Nudge the whole page up a bit */
+      .block-container { padding-top: 6px; }
+
       /* Heading color map by level (fallbacks in case global CSS isn't loaded) */
       [data-testid="stAppViewContainer"] h1,
       [data-testid="stMarkdownContainer"] h1 { color: var(--cla-cloud, #F7F7F6); font-weight: 900; }
@@ -54,17 +54,17 @@ st.markdown(
 
       .accent { color: var(--cla-riptide, #7DD2D3); }
 
-      /* Fixed-size logo (same on any screen size) */
+      /* Fixed-size logo (slightly smaller) */
       .pf-logo {
-        width: 140px;
+        width: 110px;
         height: auto;
         display: block;
-        margin: 0 auto 10px auto; /* centered above the title */
+        margin: 0 auto 8px auto; /* centered above the title */
         filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
       }
 
       /* Hero wrapper + bordered title box */
-      .pf-hero { margin-top: 6px; }
+      .pf-hero { margin-top: 0; }
       .pf-hero__box {
         display: inline-block;
         border: 1px solid var(--cla-riptide-shade-medium, #39A5A7);
@@ -73,18 +73,19 @@ st.markdown(
         background: var(--cla-navy-shade-dark, #171927);
         box-shadow: 0 2px 10px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
       }
+      .pf-hero__title { font-size: 42px; letter-spacing: -0.25px; }
 
       .pf-hr,
-      .cla-hr { height: 1px; background: rgba(255,255,255,.08); margin: 14px 0 18px 0; }
+      .cla-hr { height: 1px; background: rgba(255,255,255,.08); margin: 12px 0 16px 0; }
 
-      /* Expander tweaks for nicer boxes */
-      .pf-expander .st-emotion-cache-1v0mbdj,  /* Streamlit expander header wrapper */
-      .pf-expander .st-emotion-cache-1o6jk1p { /* variant class across versions */
+      /* Expander “card” styling (no emojis) */
+      .pf-expander .st-emotion-cache-1v0mbdj,
+      .pf-expander .st-emotion-cache-1o6jk1p {
         background: var(--cla-navy-shade-dark, #171927) !important;
         border: 1px solid rgba(255,255,255,.08);
         border-radius: 10px;
       }
-      .pf-expander .st-emotion-cache-ue6h4q { /* body wrapper */
+      .pf-expander .st-emotion-cache-ue6h4q {
         border-left: 1px solid rgba(255,255,255,.06);
         border-right: 1px solid rgba(255,255,255,.06);
         border-bottom: 1px solid rgba(255,255,255,.06);
@@ -122,9 +123,9 @@ st.markdown(
 
 
 # -------------------------
-# Collapsible “arrow boxes” (expanders)
+# Collapsible sections (no emoji icons)
 # -------------------------
-with st.expander("Getting started", expanded=False, icon="🧭"):
+with st.expander("Getting started", expanded=False):
     st.markdown(
         """
 - **Configure & Run**: choose *pipeline / catalog / schema / table*, set profile options, and save/trigger the job.
@@ -133,7 +134,7 @@ with st.expander("Getting started", expanded=False, icon="🧭"):
         """
     )
 
-with st.expander("General notes on DQX", expanded=False, icon="📒"):
+with st.expander("General notes on DQX", expanded=False):
     st.markdown(
         """
 - Use dataset-level checks for cross-row logic (aggregations, foreign keys, dataset comparisons).
@@ -143,27 +144,25 @@ with st.expander("General notes on DQX", expanded=False, icon="📒"):
         """
     )
 
-with st.expander("Seven pillars of data quality (quick reference)", expanded=False, icon="🏛️"):
+with st.expander("Seven pillars of data quality (quick reference)", expanded=False):
     st.markdown(
         """
-**Accuracy** · **Completeness** · **Consistency** · **Timeliness** · **Validity** · **Uniqueness** · **Integrity**  
-Use these to frame which checks you enable per dataset and how you prioritize remediation.
+**Accuracy** · **Completeness** · **Consistency** · **Timeliness** · **Validity** · **Uniqueness** · **Integrity**
         """
     )
 
-with st.expander("FAQ / Tips", expanded=False, icon="💡"):
+with st.expander("FAQ / Tips", expanded=False):
     st.markdown(
         """
 - **Why can I only see `samples` and `system` catalogs?**  
   Access is filtered by your workspace permissions. Use the refresh button on the Configure page; if still missing, verify Unity Catalog grants.
 
 - **Where are generated YAMLs saved?**  
-  To a Volume directory or Workspace Files path you choose. The app will overwrite when re-saving by design.
+  To a Volume directory or Workspace Files path you choose. The app will overwrite when re-saving.
 
 - **Can I monitor job progress?**  
   Yes—after triggering, the app polls via the Databricks Jobs API until completion.
         """
     )
 
-# (Optional) A gentle divider at the end
 st.markdown("<div class='pf-hr'></div>", unsafe_allow_html=True)
