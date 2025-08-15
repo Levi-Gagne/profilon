@@ -42,52 +42,51 @@ st.markdown(
       /* Give the app some breathing room so header/logo never clip */
       .block-container { padding-top: 24px; }
 
-      /* Full-bleed container: stretches to viewport edges */
-      .pf-bleed { width: 100vw; margin-left: calc(50% - 50vw); }
-
-      /* Gradient header (dark -> light so white title stays readable) */
-      .pf-banner {
+      /* Header: container-wide (no 100vw!) so it never sits under the sidebar */
+      .pf-header {
+        width: 100%;
         display: flex; align-items: center; justify-content: space-between;
         gap: 16px;
         padding: 18px 22px;
-        border-radius: 0;               /* full-bleed, no outer radius */
+        border-radius: 10px;
         background: linear-gradient(135deg,
-                    var(--cla-riptide-shade-medium, #39A5A7) 0%,
-                    var(--cla-riptide, #7DD2D3) 55%,
-                    var(--cla-riptide-tint-light, #C2EAEA) 100%);
+                    var(--cla-riptide-shade-dark, #24787A) 0%,
+                    var(--cla-riptide-shade-medium, #39A5A7) 55%,
+                    var(--cla-riptide, #7DD2D3) 100%);
         box-shadow:
           0 8px 22px rgba(0,0,0,.28),
           inset 0 1px 0 rgba(255,255,255,.10);
-        border-bottom: 1px solid rgba(255,255,255,.10);
-        position: relative;
-        margin-top: 8px;               /* nudge down slightly to avoid any clipping */
+        border: 1px solid rgba(255,255,255,.10);
+        margin: 8px 0 14px 0;   /* slight top margin so nothing is clipped */
       }
-      .pf-banner::before {
+      .pf-header::before {
         content: "";
-        position: absolute; inset: 0 0 auto 0; height: 36%;
+        position: absolute; /* subtle gloss */
+        inset: 0 0 auto 0; height: 34%;
         background: linear-gradient(to bottom, rgba(255,255,255,.14), rgba(255,255,255,0));
+        border-radius: 10px 10px 0 0;
         pointer-events: none;
       }
 
-      .pf-banner__left { display: flex; flex-direction: column; }
-      .pf-banner__title {
+      .pf-header__left { position: relative; z-index: 1; }
+      .pf-header__title {
         margin: 0;
-        color: #FFFFFF;                 /* white title */
+        color: #FFFFFF;                 /* white title stays readable on darker left */
         text-shadow: 0 1px 0 rgba(0,0,0,.25);
-        font-size: 40px;
+        font-size: 38px;
         letter-spacing: -0.3px;
         line-height: 1.12;
       }
-      .pf-banner__sub {
+      .pf-header__sub {
         margin-top: 4px;
-        color: rgba(0,0,0,.65);         /* readable on lighter mid/right side */
+        color: rgba(0,0,0,.65);         /* readable against mid/right gradient */
         font-weight: 800;
         text-shadow: 0 1px 0 rgba(255,255,255,.15);
       }
 
       /* Logo inside header (right), smaller + floating (no bevel/border/shadow) */
       .pf-logo {
-        width: 70px;
+        width: 56px;                   /* smaller per your note */
         height: auto;
         display: block;
         margin: 0;
@@ -96,6 +95,7 @@ st.markdown(
         border-radius: 0 !important;
         box-shadow: none !important;
         filter: none !important;
+        position: relative; z-index: 1;
       }
 
       .pf-hr,
@@ -121,7 +121,7 @@ st.markdown(
         transition: box-shadow .12s ease-in-out;
       }
 
-      /* Sidebar clock pinned at the very top-right */
+      /* Sidebar clock pinned at the very top-right (above nav), right-aligned */
       section[data-testid="stSidebar"] { position: relative; }
       #lmg-clock-wrap {
         position: absolute; top: 6px; right: 10px; z-index: 999;
@@ -136,7 +136,7 @@ st.markdown(
         text-shadow: 0 0 8px rgba(125,210,211,.6), 0 0 22px rgba(73,191,193,.45);
       }
 
-      /* Footer: centered LMGDATA (smaller), no bike */
+      /* Footer: centered LMGDATA (smaller) */
       .pf-footer {
         display: block;
         text-align: center;
@@ -147,7 +147,7 @@ st.markdown(
       .lmg-mark {
         margin-top: 6px;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 20px;
+        font-size: 18px;
         letter-spacing: 3px;
         color: #0DF;
         text-shadow:
@@ -155,13 +155,20 @@ st.markdown(
           0 0 16px rgba(0,221,255,.45);
         display: inline-block;
       }
+
+      /* Small screens: keep things readable */
+      @media (max-width: 768px) {
+        .pf-header { padding: 14px 16px; }
+        .pf-header__title { font-size: 30px; }
+        .pf-logo { width: 48px; }
+      }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 # -------------------------
-# Sidebar clock (absolute top-right)
+# Sidebar clock (top-right, above menu)
 # -------------------------
 with st.sidebar:
     components.html(
@@ -184,19 +191,17 @@ with st.sidebar:
     )
 
 # -------------------------
-# Full-bleed header with logo inside
+# Header (container-wide) with logo inside
 # -------------------------
 logo_html = f'<img class="pf-logo" alt="CLA logo" src="data:image/png;base64,{_logo_b64}" />' if _logo_b64 else ""
 st.markdown(
     f"""
-    <div class="pf-bleed">
-      <div class="pf-banner">
-        <div class="pf-banner__left">
-          <h1 class="pf-banner__title">profilon</h1>
-          <div class="pf-banner__sub">turn on insight, <span class="accent">turn on trust</span></div>
-        </div>
-        {logo_html}
+    <div class="pf-header">
+      <div class="pf-header__left">
+        <h1 class="pf-header__title">profilon</h1>
+        <div class="pf-header__sub">turn on insight, <span class="accent">turn on trust</span></div>
       </div>
+      {logo_html}
     </div>
     """,
     unsafe_allow_html=True,
