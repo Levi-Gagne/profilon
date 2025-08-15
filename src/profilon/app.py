@@ -16,7 +16,7 @@ inject_theme()  # CSS variables + base styles
 
 
 # -------------------------
-# Asset loaders (robust path resolution, base64 embeds)
+# Asset loaders (base64 embeds for robust paths)
 # -------------------------
 def _load_b64(*rel_parts: str) -> str | None:
     here = Path(__file__).resolve()
@@ -38,15 +38,15 @@ _bike_b64 = _load_b64("cla_bike.PNG")
 
 
 # -------------------------
-# Page-local polish (banner, focus highlight, footer)
+# Page-local CSS (banner, focus highlight, footer, sidebar clock)
 # -------------------------
 st.markdown(
     """
     <style>
-      /* Ensure top content isn't clipped but keep it tight to the top */
-      .block-container { padding-top: 12px; }
+      /* Keep top content from clipping; give a bit more air */
+      .block-container { padding-top: 24px; }
 
-      /* Heading color map by level (fallback hexes if theme vars aren't injected yet) */
+      /* Heading color map by level (fallback hexes) */
       [data-testid="stAppViewContainer"] h1,
       [data-testid="stMarkdownContainer"] h1 { color: var(--cla-cloud, #F7F7F6); font-weight: 900; }
       [data-testid="stAppViewContainer"] h2,
@@ -58,62 +58,74 @@ st.markdown(
 
       .accent { color: var(--cla-riptide, #7DD2D3); }
 
-      /* --- Riptide banner (3D tech look) --- */
+      /* --- Softer Riptide banner (lighter gradient for readability) --- */
       .pf-banner {
         position: relative;
-        margin: 6px 0 0 0;          /* slight nudge down so header & logo never clip */
+        margin: 12px 0 0 0;  /* nudge down so logo/title never clip */
         padding: 16px 18px;
         border-radius: 14px;
         background: linear-gradient(135deg,
-                    var(--cla-riptide, #7DD2D3) 0%,
-                    var(--cla-riptide-shade-light, #49BFC1) 45%,
-                    var(--cla-riptide-shade-medium, #39A5A7) 100%);
+                    var(--cla-riptide-tint-light, #C2EAEA) 0%,
+                    var(--cla-riptide, #7DD2D3) 55%,
+                    var(--cla-riptide-shade-light, #49BFC1) 100%);
         box-shadow:
-          0 10px 26px rgba(0,0,0,.35),
-          inset 0 1px 0 rgba(255,255,255,.18),
-          inset 0 -1px 0 rgba(0,0,0,.25);
+          0 8px 22px rgba(0,0,0,.28),
+          inset 0 1px 0 rgba(255,255,255,.16);
         border: 1px solid rgba(255,255,255,.10);
       }
       .pf-banner:before {
         content: "";
         position: absolute;
-        top: 0; left: 0; right: 0; height: 38%;
-        background: linear-gradient(to bottom, rgba(255,255,255,.22), rgba(255,255,255,0));
+        top: 0; left: 0; right: 0; height: 36%;
+        background: linear-gradient(to bottom, rgba(255,255,255,.18), rgba(255,255,255,0));
         border-radius: 14px 14px 0 0;
         pointer-events: none;
       }
       .pf-banner h1 {
         margin: 0;
-        color: var(--cla-navy, #2E334E);
-        text-shadow: 0 1px 0 rgba(255,255,255,.45);
-        font-size: 40px;
-        letter-spacing: -0.3px;
+        color: var(--cla-navy-shade-medium, #1E2133); /* darker text for contrast */
+        text-shadow: 0 1px 0 rgba(255,255,255,.35);
+        font-size: 38px;
+        letter-spacing: -0.25px;
       }
       .pf-banner .sub {
         margin-top: 4px;
-        color: rgba(0,0,0,.72);
+        color: rgba(0,0,0,.70);
         font-weight: 800;
-        text-shadow: 0 1px 0 rgba(255,255,255,.25);
+        text-shadow: 0 1px 0 rgba(255,255,255,.20);
       }
 
-      /* Right-aligned logo in header (slightly smaller to balance title) */
+      /* Right-aligned logo in header — smaller, no bevel/border/shadow */
       .pf-logo {
-        width: 96px;
+        width: 84px;          /* smaller */
         height: auto;
         display: block;
         margin-left: auto;
-        filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        filter: none !important;
       }
 
       .pf-hr,
       .cla-hr { height: 1px; background: rgba(255,255,255,.08); margin: 14px 0 16px 0; }
 
-      /* --- Focus/open highlight for inputs (select, multiselect, text, number, slider) --- */
-      .stSelectbox div[data-baseweb="select"]:focus-within,
-      .stMultiSelect div[data-baseweb="select"]:focus-within,
+      /* --- Focus/open highlight for inputs (incl. dropdowns) --- */
+      /* BaseWeb Select while open or focused */
+      div[data-baseweb="select"][aria-expanded="true"],
+      div[data-baseweb="select"]:focus-within {
+        box-shadow:
+          0 0 0 2px var(--cla-riptide, #7DD2D3),
+          0 0 18px rgba(125,210,211,.35) !important;
+        border-radius: 10px;
+        transition: box-shadow .12s ease-in-out;
+      }
+      /* Other inputs */
       .stTextInput:focus-within,
       .stNumberInput:focus-within,
-      .stSlider:focus-within {
+      .stSlider:focus-within,
+      .stMultiSelect:focus-within {
         box-shadow:
           0 0 0 2px var(--cla-riptide, #7DD2D3),
           0 0 18px rgba(125,210,211,.35) !important;
@@ -121,36 +133,41 @@ st.markdown(
         transition: box-shadow .12s ease-in-out;
       }
 
-      /* Expander “card” styling */
-      .pf-expander .st-emotion-cache-1v0mbdj,
-      .pf-expander .st-emotion-cache-1o6jk1p {
-        background: var(--cla-navy-shade-dark, #171927) !important;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 10px;
+      /* --- Sidebar clock pinned at top-right of sidebar --- */
+      section[data-testid="stSidebar"] { position: relative; }
+      #lmg-clock-wrap {
+        position: absolute; top: 6px; right: 10px; z-index: 999;
+        text-align: right;
+        width: calc(100% - 20px);
+        pointer-events: none; /* avoid blocking clicks on nav */
       }
-      .pf-expander .st-emotion-cache-ue6h4q {
-        border-left: 1px solid rgba(255,255,255,.06);
-        border-right: 1px solid rgba(255,255,255,.06);
-        border-bottom: 1px solid rgba(255,255,255,.06);
-        border-radius: 0 0 10px 10px;
+      #lmg-clock {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 28px; letter-spacing: 2px;
+        color: var(--cla-riptide, #7DD2D3);
+        text-shadow: 0 0 8px rgba(125,210,211,.6), 0 0 22px rgba(73,191,193,.45);
       }
 
-      /* --- Footer image + LMGDATA mark --- */
+      /* --- Footer: bike with LMGDATA underneath --- */
       .pf-footer {
-        display: grid;
-        grid-template-columns: 220px 1fr;
-        gap: 18px;
-        align-items: center;
+        display: block;
+        text-align: center;
         padding: 14px 16px;
         border: 1px solid rgba(255,255,255,.08);
         background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
         border-radius: 12px;
       }
-      .pf-footer img { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
-
+      .pf-footer img {
+        width: 320px; max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.35);
+        display: inline-block;
+      }
       .lmg-mark {
+        margin-top: 10px;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 28px;
+        font-size: 26px;
         letter-spacing: 4px;
         color: #0DF;
         text-shadow:
@@ -158,8 +175,8 @@ st.markdown(
           0 0 16px rgba(0,221,255,.45),
           0 0 36px rgba(0,221,255,.35);
         transform: perspective(400px) translateZ(6px);
+        display: inline-block;
       }
-
       .pf-footer-gap { height: 14px; }
     </style>
     """,
@@ -168,19 +185,13 @@ st.markdown(
 
 
 # -------------------------
-# Sidebar clock (browser-side, non-blocking)
+# Sidebar clock (absolute top-right in sidebar)
 # -------------------------
 with st.sidebar:
     components.html(
         """
-        <div id="lmg-clock"
-             style="
-               font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-               font-size: 28px; letter-spacing: 2px;
-               color: var(--cla-riptide, #7DD2D3);
-               text-shadow: 0 0 8px rgba(125,210,211,.6), 0 0 22px rgba(73,191,193,.45);
-               padding: 4px 2px 10px 2px; ">
-          --
+        <div id="lmg-clock-wrap">
+          <div id="lmg-clock">--</div>
         </div>
         <script>
           function pad(n){return n<10?'0'+n:n}
@@ -193,7 +204,7 @@ with st.sidebar:
           setInterval(tick, 1000); tick();
         </script>
         """,
-        height=60,
+        height=0,  # invisible container; clock is absolutely positioned
     )
 
 
@@ -222,7 +233,7 @@ st.markdown("<div class='pf-hr'></div>", unsafe_allow_html=True)
 
 
 # -------------------------
-# Collapsible sections (no emojis)
+# Collapsible sections (kept, no emojis)
 # -------------------------
 with st.expander("Getting started", expanded=False):
     st.markdown(
@@ -268,7 +279,7 @@ st.markdown("<div class='pf-hr'></div>", unsafe_allow_html=True)
 
 
 # -------------------------
-# Footer: bike image + LMGDATA mark
+# Footer: bike image with LMGDATA underneath
 # -------------------------
 if _bike_b64:
     st.markdown('<div class="pf-footer-gap"></div>', unsafe_allow_html=True)
