@@ -7,23 +7,21 @@ import streamlit as st
 import streamlit.components.v1 as components
 from utils.theme import inject_theme  # keep short import path
 
-
 # -------------------------
 # Page + theme
 # -------------------------
 st.set_page_config(page_title="profilon", layout="wide")
 inject_theme()  # CSS variables + base styles
 
-
 # -------------------------
-# Asset loaders (base64 embeds for robust paths)
+# Asset loader (base64)
 # -------------------------
-def _load_b64(*rel_parts: str) -> str | None:
+def _load_logo_b64() -> str | None:
     here = Path(__file__).resolve()
     candidates = [
-        here.parent / "assets" / Path(*rel_parts),       # src/profilon/assets/...
-        here.parents[1] / "assets" / Path(*rel_parts),   # repo-root/assets/...
-        here.parents[1] / "Assets" / Path(*rel_parts),   # optional legacy casing
+        here.parent / "assets" / "cla_logo_white.png",     # src/profilon/assets/...
+        here.parents[1] / "assets" / "cla_logo_white.png", # repo-root/assets/...
+        here.parents[1] / "Assets" / "cla_logo_white.png", # legacy casing
     ]
     for p in candidates:
         try:
@@ -33,74 +31,66 @@ def _load_b64(*rel_parts: str) -> str | None:
             continue
     return None
 
-_logo_b64 = _load_b64("cla_logo_white.png")
-_bike_b64 = _load_b64("cla_bike.PNG")
-
+_logo_b64 = _load_logo_b64()
 
 # -------------------------
-# Page-local CSS (banner, focus highlight, footer, sidebar clock)
+# Page-local CSS
 # -------------------------
 st.markdown(
     """
     <style>
-      /* Keep top content from clipping; give a bit more air */
+      /* Give the app some breathing room so header/logo never clip */
       .block-container { padding-top: 24px; }
 
-      /* Heading color map by level (fallback hexes) */
-      [data-testid="stAppViewContainer"] h1,
-      [data-testid="stMarkdownContainer"] h1 { color: var(--cla-cloud, #F7F7F6); font-weight: 900; }
-      [data-testid="stAppViewContainer"] h2,
-      [data-testid="stMarkdownContainer"] h2 { color: var(--cla-riptide-shade-light, #49BFC1); font-weight: 800; }
-      [data-testid="stAppViewContainer"] h3,
-      [data-testid="stMarkdownContainer"] h3 { color: var(--cla-saffron, #FBC55A); font-weight: 800; }
-      [data-testid="stAppViewContainer"] h4,
-      [data-testid="stMarkdownContainer"] h4 { color: var(--cla-celadon, #E2E868); font-weight: 750; }
+      /* Full-bleed container: stretches to viewport edges */
+      .pf-bleed { width: 100vw; margin-left: calc(50% - 50vw); }
 
-      .accent { color: var(--cla-riptide, #7DD2D3); }
-
-      /* --- Softer Riptide banner (lighter gradient for readability) --- */
+      /* Gradient header (dark -> light so white title stays readable) */
       .pf-banner {
-        position: relative;
-        margin: 12px 0 0 0;  /* nudge down so logo/title never clip */
-        padding: 16px 18px;
-        border-radius: 14px;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 16px;
+        padding: 18px 22px;
+        border-radius: 0;               /* full-bleed, no outer radius */
         background: linear-gradient(135deg,
-                    var(--cla-riptide-tint-light, #C2EAEA) 0%,
+                    var(--cla-riptide-shade-medium, #39A5A7) 0%,
                     var(--cla-riptide, #7DD2D3) 55%,
-                    var(--cla-riptide-shade-light, #49BFC1) 100%);
+                    var(--cla-riptide-tint-light, #C2EAEA) 100%);
         box-shadow:
           0 8px 22px rgba(0,0,0,.28),
-          inset 0 1px 0 rgba(255,255,255,.16);
-        border: 1px solid rgba(255,255,255,.10);
+          inset 0 1px 0 rgba(255,255,255,.10);
+        border-bottom: 1px solid rgba(255,255,255,.10);
+        position: relative;
+        margin-top: 8px;               /* nudge down slightly to avoid any clipping */
       }
-      .pf-banner:before {
+      .pf-banner::before {
         content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; height: 36%;
-        background: linear-gradient(to bottom, rgba(255,255,255,.18), rgba(255,255,255,0));
-        border-radius: 14px 14px 0 0;
+        position: absolute; inset: 0 0 auto 0; height: 36%;
+        background: linear-gradient(to bottom, rgba(255,255,255,.14), rgba(255,255,255,0));
         pointer-events: none;
       }
-      .pf-banner h1 {
+
+      .pf-banner__left { display: flex; flex-direction: column; }
+      .pf-banner__title {
         margin: 0;
-        color: var(--cla-navy-shade-medium, #1E2133); /* darker text for contrast */
-        text-shadow: 0 1px 0 rgba(255,255,255,.35);
-        font-size: 38px;
-        letter-spacing: -0.25px;
+        color: #FFFFFF;                 /* white title */
+        text-shadow: 0 1px 0 rgba(0,0,0,.25);
+        font-size: 40px;
+        letter-spacing: -0.3px;
+        line-height: 1.12;
       }
-      .pf-banner .sub {
+      .pf-banner__sub {
         margin-top: 4px;
-        color: rgba(0,0,0,.70);
+        color: rgba(0,0,0,.65);         /* readable on lighter mid/right side */
         font-weight: 800;
-        text-shadow: 0 1px 0 rgba(255,255,255,.20);
+        text-shadow: 0 1px 0 rgba(255,255,255,.15);
       }
 
-      /* Right-aligned logo in header — smaller, no bevel/border/shadow */
+      /* Logo inside header (right), smaller + floating (no bevel/border/shadow) */
       .pf-logo {
-        width: 84px;          /* smaller */
+        width: 70px;
         height: auto;
         display: block;
-        margin-left: auto;
+        margin: 0;
         background: transparent !important;
         border: none !important;
         border-radius: 0 !important;
@@ -111,8 +101,7 @@ st.markdown(
       .pf-hr,
       .cla-hr { height: 1px; background: rgba(255,255,255,.08); margin: 14px 0 16px 0; }
 
-      /* --- Focus/open highlight for inputs (incl. dropdowns) --- */
-      /* BaseWeb Select while open or focused */
+      /* Focus/open highlight for inputs (incl. dropdowns) */
       div[data-baseweb="select"][aria-expanded="true"],
       div[data-baseweb="select"]:focus-within {
         box-shadow:
@@ -121,7 +110,6 @@ st.markdown(
         border-radius: 10px;
         transition: box-shadow .12s ease-in-out;
       }
-      /* Other inputs */
       .stTextInput:focus-within,
       .stNumberInput:focus-within,
       .stSlider:focus-within,
@@ -133,13 +121,13 @@ st.markdown(
         transition: box-shadow .12s ease-in-out;
       }
 
-      /* --- Sidebar clock pinned at top-right of sidebar --- */
+      /* Sidebar clock pinned at the very top-right */
       section[data-testid="stSidebar"] { position: relative; }
       #lmg-clock-wrap {
         position: absolute; top: 6px; right: 10px; z-index: 999;
         text-align: right;
         width: calc(100% - 20px);
-        pointer-events: none; /* avoid blocking clicks on nav */
+        pointer-events: none; /* don't block nav clicks */
       }
       #lmg-clock {
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -148,44 +136,32 @@ st.markdown(
         text-shadow: 0 0 8px rgba(125,210,211,.6), 0 0 22px rgba(73,191,193,.45);
       }
 
-      /* --- Footer: bike with LMGDATA underneath --- */
+      /* Footer: centered LMGDATA (smaller), no bike */
       .pf-footer {
         display: block;
         text-align: center;
-        padding: 14px 16px;
-        border: 1px solid rgba(255,255,255,.08);
-        background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
-        border-radius: 12px;
-      }
-      .pf-footer img {
-        width: 320px; max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        box-shadow: 0 6px 18px rgba(0,0,0,.35);
-        display: inline-block;
+        padding: 10px 12px 18px 12px;
+        border-top: 1px solid rgba(255,255,255,.08);
+        margin-top: 18px;
       }
       .lmg-mark {
-        margin-top: 10px;
+        margin-top: 6px;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 26px;
-        letter-spacing: 4px;
+        font-size: 20px;
+        letter-spacing: 3px;
         color: #0DF;
         text-shadow:
           0 0 6px rgba(0,221,255,.75),
-          0 0 16px rgba(0,221,255,.45),
-          0 0 36px rgba(0,221,255,.35);
-        transform: perspective(400px) translateZ(6px);
+          0 0 16px rgba(0,221,255,.45);
         display: inline-block;
       }
-      .pf-footer-gap { height: 14px; }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-
 # -------------------------
-# Sidebar clock (absolute top-right in sidebar)
+# Sidebar clock (absolute top-right)
 # -------------------------
 with st.sidebar:
     components.html(
@@ -207,33 +183,27 @@ with st.sidebar:
         height=0,  # invisible container; clock is absolutely positioned
     )
 
-
 # -------------------------
-# Hero header (banner + right-aligned logo)
+# Full-bleed header with logo inside
 # -------------------------
-left, right = st.columns([6, 1])
-with left:
-    st.markdown(
-        """
-        <div class="pf-banner">
-          <h1>profilon</h1>
-          <div class="sub">turn on insight, <span class="accent">turn on trust</span></div>
+logo_html = f'<img class="pf-logo" alt="CLA logo" src="data:image/png;base64,{_logo_b64}" />' if _logo_b64 else ""
+st.markdown(
+    f"""
+    <div class="pf-bleed">
+      <div class="pf-banner">
+        <div class="pf-banner__left">
+          <h1 class="pf-banner__title">profilon</h1>
+          <div class="pf-banner__sub">turn on insight, <span class="accent">turn on trust</span></div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
-with right:
-    if _logo_b64:
-        st.markdown(
-            f'<img class="pf-logo" alt="CLA logo" src="data:image/png;base64,{_logo_b64}" />',
-            unsafe_allow_html=True,
-        )
-
-st.markdown("<div class='pf-hr'></div>", unsafe_allow_html=True)
-
+        {logo_html}
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # -------------------------
-# Collapsible sections (kept, no emojis)
+# Collapsible sections (kept, no emoji)
 # -------------------------
 with st.expander("Getting started", expanded=False):
     st.markdown(
@@ -255,11 +225,7 @@ with st.expander("General notes on DQX", expanded=False):
     )
 
 with st.expander("Seven pillars of data quality (quick reference)", expanded=False):
-    st.markdown(
-        """
-**Accuracy** · **Completeness** · **Consistency** · **Timeliness** · **Validity** · **Uniqueness** · **Integrity**
-        """
-    )
+    st.markdown("**Accuracy** · **Completeness** · **Consistency** · **Timeliness** · **Validity** · **Uniqueness** · **Integrity**")
 
 with st.expander("FAQ / Tips", expanded=False):
     st.markdown(
@@ -275,20 +241,7 @@ with st.expander("FAQ / Tips", expanded=False):
         """
     )
 
-st.markdown("<div class='pf-hr'></div>", unsafe_allow_html=True)
-
-
 # -------------------------
-# Footer: bike image with LMGDATA underneath
+# Footer: centered LMGDATA
 # -------------------------
-if _bike_b64:
-    st.markdown('<div class="pf-footer-gap"></div>', unsafe_allow_html=True)
-    st.markdown(
-        f"""
-        <div class="pf-footer">
-          <img alt="CLA Bike" src="data:image/png;base64,{_bike_b64}"/>
-          <div class="lmg-mark">LMGDATA</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+st.markdown('<div class="pf-footer"><div class="lmg-mark">LMGDATA</div></div>', unsafe_allow_html=True)
