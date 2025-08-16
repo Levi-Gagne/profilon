@@ -1,32 +1,162 @@
+# =============================================================================
+# Streamlit configuration — PROFFILON dark theme
+# Place at: .streamlit/config.toml
+# =============================================================================
+
 # ──────────────────────────────────────────────────────────────────────────────
-# Streamlit built-ins (limited but still good to set)
+# Theme (applies to body; override specifics in [theme.sidebar])
+# Docs: theming overview & options, fonts, colors/borders
 # ──────────────────────────────────────────────────────────────────────────────
 [theme]
+# Base must be "light" or "dark".
 base = "dark"
-primaryColor = "#7DD2D3"              # riptide
-backgroundColor = "#171927"           # navy_shade_dark
-secondaryBackgroundColor = "#2E334E"  # navy
-textColor = "#F7F7F6"                 # cloud
-font = "sans serif"                   # fine; custom families come via CSS below
 
-# Quality-of-life options you might like
+# Core colors
+primaryColor = "#7DD2D3"                # riptide
+backgroundColor = "#171927"             # navy_shade_dark
+secondaryBackgroundColor = "#2E334E"    # navy
+textColor = "#F7F7F6"                   # cloud
+
+# Links & emphasis
+linkColor = "#49BFC1"                   # riptide_shade_light (visible on dark bg)
+linkUnderline = true
+
+# Code / dataframes
+codeBackgroundColor = "#1E2133"         # navy_shade_medium
+dataframeHeaderBackgroundColor = "#262A40"  # navy_shade_light
+
+# Borders & radii
+borderColor = "#262A40"                 # subtle container borders
+dataframeBorderColor = "#262A40"
+showWidgetBorder = false                # keep inputs clean until focused
+showSidebarBorder = false               # border between sidebar and body
+
+# Radii (accepts keywords none/small/medium/large/full OR px/rem)
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+
+# Charts: default series for Plotly, Altair, Vega-Lite
+# (categorical → high-contrast; sequential → on-brand light→dark ramp)
+chartCategoricalColors = [
+  "#7DD2D3",  # riptide
+  "#E2E868",  # celadon
+  "#FBC55A",  # saffron
+  "#EE5340",  # scarlett
+  "#ABAEAB",  # smoke
+  "#2E334E",  # navy
+  "#C2EAEA",  # riptide_tint_light
+  "#F69B89"   # scarlett_tint_medium
+]
+chartSequentialColors = [
+  "#F5F7D1",  # celadon_tint_light
+  "#EEF2B2",
+  "#E7EC93",
+  "#A4DFE0",  # riptide_tint_medium
+  "#95D9DB",
+  "#49BFC1",  # riptide_shade_light
+  "#24787A"   # riptide_shade_dark
+]
+
+# Typography
+# Use system fallbacks by default. To guarantee Inter, self-host fonts and
+# set [[theme.fontFaces]] below, then set font="Inter, ..."
+font = "sans-serif"                     # Streamlit token ("sans-serif"/"serif"/"monospace")
+headingFont = "sans-serif"
+codeFont = "monospace"
+baseFontSize = 16                       # px
+baseFontWeight = 400
+codeFontSize = "0.90rem"                # affects blocks; inline code is fixed
+
+# Optional: per-level heading sizes/weights (arrays for h1..h6)
+headingFontSizes = ["2.0rem","1.5rem","1.25rem","1.05rem","1.0rem","0.95rem"]
+headingFontWeights = [800,700,600,600,600,600]
+
+# Sidebar overrides (explicit to avoid auto-swapping of bg/secondary colors)
+[theme.sidebar]
+primaryColor = "#7DD2D3"
+backgroundColor = "#171927"
+secondaryBackgroundColor = "#2E334E"
+textColor = "#F7F7F6"
+linkColor = "#49BFC1"
+linkUnderline = true
+codeBackgroundColor = "#1E2133"
+borderColor = "#262A40"
+dataframeBorderColor = "#262A40"
+dataframeHeaderBackgroundColor = "#262A40"
+showWidgetBorder = false
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+
+# OPTIONAL: self-hosted fonts (uncomment after placing files under ./static/)
+# Requires: [server].enableStaticServing = true
+# [[theme.fontFaces]]
+# family = "Inter"
+# url = "app/static/Inter-VariableFont_slnt,wght.ttf"
+# weight = "100 900"
+# style  = "normal"
+# [[theme.fontFaces]]
+# family = "Inter"
+# url = "app/static/Inter-Italic-VariableFont_slnt,wght.ttf"
+# weight = "100 900"
+# style  = "italic"
+# # Then set:
+# # font = "Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+# # headingFont = "Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Client (toolbar, errors, default sidebar nav)
+# ──────────────────────────────────────────────────────────────────────────────
 [client]
-showErrorDetails = true
-toolbarMode = "minimal"
+# Show only app-defined menu items; keeps UI clean in prod.
+toolbarMode = "minimal"                 # auto | developer | viewer | minimal
+showErrorDetails = "full"               # full | stacktrace | type | none
+showSidebarNavigation = true            # hide if you build custom nav
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Server
+# ──────────────────────────────────────────────────────────────────────────────
 [server]
 headless = true
-enableStaticServing = true
+enableStaticServing = true              # needed if you self-host fonts/images
+enableCORS = true
+enableXsrfProtection = true
+runOnSave = false
+enableWebsocketCompression = false
+maxUploadSize = 200
+maxMessageSize = 200
 
 # ──────────────────────────────────────────────────────────────────────────────
-# PROFFILON BRAND SYSTEM — the app will read this and build CSS variables
+# Browser (telemetry + address)
+# ──────────────────────────────────────────────────────────────────────────────
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8501
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Runner (execution behavior)
+# ──────────────────────────────────────────────────────────────────────────────
+[runner]
+magicEnabled = true
+fastReruns = true
+enforceSerializableSessionState = false
+enumCoercion = "nameOnly"               # off | nameOnly | nameAndValue
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Logger
+# ──────────────────────────────────────────────────────────────────────────────
+[logger]
+level = "info"                          # error | warning | info | debug
+messageFormat = "%(asctime)s %(message)s"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# PROFFILON BRAND SYSTEM — tokens your CSS injector can read
 # ──────────────────────────────────────────────────────────────────────────────
 [profilon]
-active_preset = "dark"   # if you add a "light" preset later, switch here
+active_preset = "dark"
 
-# All tokens flattened (easy to turn into CSS variables)
 [profilon.tokens]
-# Core (Primary)
+# Core
 riptide = "#7DD2D3"
 navy    = "#2E334E"
 
@@ -42,7 +172,7 @@ cloud    = "#F7F7F6"
 white    = "#FFFFFF"
 black    = "#000000"
 
-# Approved Tints / Shades
+# Tints & shades
 riptide_tint_light  = "#C2EAEA"
 riptide_tint_medium = "#A4DFE0"
 riptide_tint_dark   = "#95D9DB"
@@ -66,13 +196,10 @@ scarlett_tint_light  = "#FBCDC4"
 scarlett_tint_medium = "#F69B89"
 scarlett_tint_dark   = "#F37962"
 
-# Typography families (used by CSS injector; Streamlit's [theme.font] is limited)
 [profilon.typography]
 headings_family = "Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
 body_family     = "Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
 mono_family     = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
-
-# Type scale (optional; tweak to taste)
 h1_size = "2.0rem"
 h2_size = "1.5rem"
 h3_size = "1.25rem"
@@ -80,20 +207,16 @@ h4_size = "1.05rem"
 body_size = "0.95rem"
 code_size = "0.90rem"
 line_height = "1.4"
-
-# Weights / tracking
 h_weight = 800
 body_weight = 400
 letter_spacing = "0.01em"
 
-# Map header levels → brand tokens (by token key from profilon.tokens)
 [profilon.headers]
 h1 = "cloud"
 h2 = "riptide_shade_light"
 h3 = "saffron"
 h4 = "celadon"
 
-# Component: “hero” box used on landing, etc.
 [profilon.components.hero]
 use = true
 border_color = "riptide_shade_light"
@@ -103,17 +226,15 @@ border_width_px = 1
 padding = "14px 16px"
 shadow = "0 1px 10px rgba(0,0,0,.28)"
 
-# Generic “box” defaults you can reuse for cards/sections
 [profilon.components.box]
 radius_px = 12
 border_width_px = 1
 border_color = "navy_shade_light"
-bg_color = "secondaryBackgroundColor"    # may also reference Streamlit theme keys
+bg_color = "secondaryBackgroundColor"  # may reference [theme] keys
 shadow = "0 1px 6px rgba(0,0,0,.18)"
 padding = "12px 14px"
 
-# Layout knobs
 [profilon.layout]
 content_max_width = "1400px"
 gutter = "14px"
-hr_opacity = 0.15   # 0..1
+hr_opacity = 0.15
